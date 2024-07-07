@@ -23,11 +23,13 @@ export default async function Page({
   let suggestedKeywords: Keyword[] | undefined;
   const res = await getCompany();
 
-  const isCompanyType = (data: any): data is Company => {
-    return data && (data as Company).master_keywords !== undefined;
-  };
-  if (isCompanyType(res)) {
-    suggestedKeywords = master_keywords.map((item) => {
+  if (
+    res &&
+    !("error" in res) &&
+    !("message" in res) &&
+    "master_keywords" in res
+  ) {
+    suggestedKeywords = res?.master_keywords?.map((item) => {
       return {
         id: item.id,
         keyword: item.keyword,
