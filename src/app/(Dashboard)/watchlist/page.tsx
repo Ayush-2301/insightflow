@@ -1,14 +1,8 @@
 import { Button } from "@/components/ui/button";
-import Watchlists from "./components/Watchlists";
-import { getAllWatchlist } from "@/lib/actions/watchlist";
-import { redirect } from "next/navigation";
+import WatchlistServer from "./components/WatchlistServer";
+import Link from "next/link";
 
 const WatchListPage = async () => {
-  const watchlists = await getAllWatchlist();
-  async function addWatchlist() {
-    "use server";
-    redirect("/watchlist/new");
-  }
   return (
     <div className=" flex flex-col justify-center  w-full">
       <div className="flex items-center justify-between border-b py-8">
@@ -18,12 +12,12 @@ const WatchListPage = async () => {
             Manage your watchlists
           </p>
         </div>
-        <form action={addWatchlist}>
+        <Link href={"/watchlist/new"}>
           <Button type="submit">+ Add New</Button>
-        </form>
+        </Link>
       </div>
       <div className=" mt-6">
-        <Watchlists watchlists={watchlists} />
+        <WatchlistServer />
       </div>
     </div>
   );

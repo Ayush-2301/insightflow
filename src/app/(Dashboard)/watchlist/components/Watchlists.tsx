@@ -16,7 +16,6 @@ const Watchlists = ({
     | undefined;
 }) => {
   const data = watchlists && "error" in watchlists ? undefined : watchlists;
-  console.log(data);
   return (
     <div className=" flex flex-col space-y-4">
       <div className=" flex gap-3">
@@ -50,21 +49,22 @@ export default Watchlists;
 export function WatchlistsSkeleton() {
   return (
     <div className="mt-6 space-y-4">
-      {[...Array(5)].map((_, index) => (
-        <>
-          <div className="bg-white rounded-lg p-4 flex flex-col items-start  space-y-2 shadow">
-            <Skeleton className="h-[40px] w-[240px] rounded-md" />
-            <div className="grid grid-cols-3 gap-2">
-              <Skeleton className="h-[40px] w-[200px]" />
-              <Skeleton className="h-[40px] w-[200px]" />
-              <Skeleton className="h-[40px] w-[200px]" />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <Skeleton className="h-[40px] w-[350px]" />
-              <Skeleton className="h-[40px] w-[350px]" />
-            </div>
+      {[...Array(2)].map((_, index) => (
+        <div
+          key={index}
+          className="bg-white rounded-lg p-4 flex flex-col items-start  space-y-2 shadow"
+        >
+          <Skeleton className="h-[30px] w-[240px] rounded-md" />
+          <div className="grid grid-cols-3 gap-2">
+            <Skeleton className="h-[20px] w-[200px]" />
+            <Skeleton className="h-[20px] w-[200px]" />
+            <Skeleton className="h-[20px] w-[200px]" />
           </div>
-        </>
+          <div className="flex flex-col space-y-2">
+            <Skeleton className="h-[20px] w-[350px]" />
+            <Skeleton className="h-[20px] w-[350px]" />
+          </div>
+        </div>
       ))}
     </div>
   );

@@ -1,30 +1,36 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createSupabaseServerClient } from "../supabase/server";
 import { type Task } from "../types";
 
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { TaskForm } from "@/app/(Dashboard)/tasks/schema";
+import { getSession } from "./index";
 const SERVER_URL = process.env.SERVER_URL;
 
 export const getAllTasks = async () => {
   try {
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-
-    const session = data.session?.access_token;
-    if (!session) {
-      redirect("/auth");
-    }
+    const { access_token } = await getSession();
+    if (!access_token) redirect("/auth");
     const response = await fetch(`${SERVER_URL}/tasks`, {
       method: "GET",
       headers: {
-        Authorization: session,
+        Authorization: access_token,
+      },
+      next: {
+        revalidate: 3600,
+        tags: ["tasks"],
       },
     });
-    const tasks: Task[] = await response.json();
-    return tasks;
+    if (!response.ok) {
+      const error: {
+        error: string;
+      } = await response.json();
+      return error;
+    } else {
+      const tasks: Task[] = await response.json();
+      return tasks;
+    }
   } catch (error) {
     throw new Error("Error fetching tasks");
   }
@@ -32,22 +38,27 @@ export const getAllTasks = async () => {
 
 export const getSingleTask = async ({ id }: { id: string }) => {
   try {
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-
-    const session = data.session?.access_token;
-    if (!session) {
-      redirect("/auth");
-    }
+    const { access_token } = await getSession();
+    if (!access_token) redirect("/auth");
     const response = await fetch(`${SERVER_URL}/tasks/?id=${id}`, {
       method: "GET",
       headers: {
-        Authorization: session,
+        Authorization: access_token,
+      },
+      next: {
+        revalidate: 3600,
+        tags: ["tasks"],
       },
     });
-    const task: Task[] = await response.json();
-
-    return task[0];
+    if (!response.ok) {
+      const error: {
+        error: string;
+      } = await response.json();
+      return error;
+    } else {
+      const task: Task[] = await response.json();
+      return task[0];
+    }
   } catch (error) {
     throw new Error("Error fetching task");
   }
@@ -61,19 +72,15 @@ export const updateTask = async ({
   taskID: string;
 }) => {
   try {
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const session = data.session?.access_token;
-    if (!session) {
-      redirect("/auth");
-    }
+    const { access_token } = await getSession();
+    if (!access_token) redirect("/auth");
     const taskData = { task_id: taskID, ...newTask };
 
     const response = await fetch(`${SERVER_URL}/tasks`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: session,
+        Authorization: access_token,
       },
       body: JSON.stringify([taskData]),
     });
@@ -83,7 +90,7 @@ export const updateTask = async ({
       } = await response.json();
       return error;
     } else {
-      revalidatePath("/");
+      revalidateTag("tasks");
       const res: Task[] = await response.json();
       return res[0];
     }
@@ -94,17 +101,13 @@ export const updateTask = async ({
 
 export const insertTask = async ({ newTask }: { newTask: TaskForm }) => {
   try {
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const session = data.session?.access_token;
-    if (!session) {
-      redirect("/auth");
-    }
+    const { access_token } = await getSession();
+    if (!access_token) redirect("/auth");
     const response = await fetch(`${SERVER_URL}/tasks`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: session,
+        Authorization: access_token,
       },
       body: JSON.stringify([newTask]),
     });
@@ -114,7 +117,7 @@ export const insertTask = async ({ newTask }: { newTask: TaskForm }) => {
       } = await response.json();
       return error;
     } else {
-      revalidatePath("/tasks");
+      revalidateTag("tasks");
       const res: Task[] = await response.json();
       return res[0];
     }
@@ -125,16 +128,12 @@ export const insertTask = async ({ newTask }: { newTask: TaskForm }) => {
 
 export const deleteTask = async ({ id }: { id: string }) => {
   try {
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const session = data.session?.access_token;
-    if (!session) {
-      redirect("/auth");
-    }
+    const { access_token } = await getSession();
+    if (!access_token) redirect("/auth");
     const response = await fetch(`${SERVER_URL}/tasks/?id=${id}`, {
       method: "DELETE",
       headers: {
-        Authorization: session,
+        Authorization: access_token,
       },
     });
     if (!response.ok) {
@@ -143,11 +142,46 @@ export const deleteTask = async ({ id }: { id: string }) => {
       } = await response.json();
       return error;
     } else {
-      revalidatePath("/");
+      revalidateTag("tasks");
       const res: Task[] = await response.json();
       return res[0];
     }
   } catch (error) {
     throw new Error("Error deleting the task");
+  }
+};
+
+export const getAllTaskByWatchlistID = async ({
+  watchlistID,
+}: {
+  watchlistID: string;
+}) => {
+  try {
+    const { access_token } = await getSession();
+    if (!access_token) redirect("/auth");
+    const response = await fetch(
+      `${SERVER_URL}/tasks/?watchlist_id=${watchlistID}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: access_token,
+        },
+        next: {
+          revalidate: 3600,
+          tags: ["tasks"],
+        },
+      }
+    );
+    if (!response.ok) {
+      const error: {
+        error: string;
+      } = await response.json();
+      return error;
+    } else {
+      const tasks: Task[] = await response.json();
+      return tasks;
+    }
+  } catch (error) {
+    throw new Error("Error fetching tasks");
   }
 };

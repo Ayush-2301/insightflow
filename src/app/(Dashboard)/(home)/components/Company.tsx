@@ -5,6 +5,8 @@ import CompanyForm from "./CompanyForm";
 import React, { useState } from "react";
 import DetailsPreview from "./DetailsPreview";
 import { Button } from "@/components/ui/button";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Company = ({
   userID,
@@ -28,7 +30,7 @@ const Company = ({
       {company && (
         <>
           {!edit ? (
-            <>
+            <Suspense fallback={<PreviewSkeleton />}>
               <div className="flex justify-between items-center">
                 <p className=" text-muted-foreground text-lg">
                   Your Company Details
@@ -42,7 +44,7 @@ const Company = ({
                 </Button>
               </div>
               <DetailsPreview initialData={company} />
-            </>
+            </Suspense>
           ) : (
             <>
               <div className="flex justify-between items-center">
@@ -71,3 +73,15 @@ const Company = ({
 };
 
 export default Company;
+
+function PreviewSkeleton() {
+  return (
+    <div className="space-y-2">
+      <div className="flex  items-center  space-x-2">
+        <Skeleton className="h-[30px] w-[200px]" />
+        <Skeleton className="h-[30px] w-[30px] rounded-full" />
+      </div>
+      <Skeleton className="h-[100px] w-full rounded-xl" />
+    </div>
+  );
+}

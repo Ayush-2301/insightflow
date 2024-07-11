@@ -14,23 +14,32 @@ import { Task } from "@/lib/types";
 import { getSingleTask } from "@/lib/actions/tasks";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { Icons } from "@/components/icons/icons";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/components/ui/use-toast";
 
 export function EditTask({ userID }: { userID: string }) {
-  const { taskID, setTaskID } = useContext(Context);
-  const [open, setOpen] = useState<boolean>(false);
+  const { toast } = useToast();
+  const { taskID, setTaskID, openSheet, setOpenSheet } = useContext(Context);
   const [isLoading, setLoading] = useState(false);
   const [initialValue, setInitialValue] = useState<Task | null>(null);
 
   useEffect(() => {
     if (taskID) {
-      setOpen(true);
+      setOpenSheet(true);
       setLoading(true);
       const fetchTask = async () => {
         const task = await getSingleTask({ id: taskID });
-        setInitialValue(task || null);
-        setLoading(false);
+        if ("error" in task) {
+          toast({
+            title: "Error fetching task",
+            variant: "destructive",
+          });
+          setOpenSheet(false);
+          setTaskID("");
+        } else {
+          setInitialValue(task || null);
+          setLoading(false);
+        }
       };
       fetchTask();
     } else {
@@ -39,12 +48,12 @@ export function EditTask({ userID }: { userID: string }) {
   }, [taskID]);
 
   const handleClose = () => {
-    setOpen(!open);
+    setOpenSheet(!openSheet);
     setTaskID("");
   };
 
   return (
-    <Sheet open={open} onOpenChange={handleClose}>
+    <Sheet open={openSheet} onOpenChange={handleClose}>
       <SheetTrigger asChild>
         <Button>
           <Plus className="w-4 h-4 mr-1" /> Create Task

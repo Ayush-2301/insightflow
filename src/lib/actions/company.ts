@@ -1,26 +1,27 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createSupabaseServerClient } from "../supabase/server";
 import { type Company } from "../types";
 import { CompanyForm } from "@/app/(Dashboard)/(home)/schema";
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
+import { getSession } from "./index";
 const SERVER_URL = process.env.SERVER_URL;
 
 export const getCompany = async () => {
   try {
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const session = data.session?.access_token;
-    if (!session) {
-      redirect("/auth");
-    }
+    const { access_token, user } = await getSession();
+    if (!access_token) redirect("/auth");
     const response = await fetch(
-      `${SERVER_URL}/company_info/?user_id=${data.session?.user.id}`,
+      `${SERVER_URL}/company_info/?user_id=${user.id}`,
+
       {
         method: "GET",
         headers: {
-          Authorization: session,
+          Authorization: access_token,
+        },
+        next: {
+          revalidate: 3600,
+          tags: ["company_info"],
         },
       }
     );
@@ -36,7 +37,7 @@ export const getCompany = async () => {
 
     return res;
   } catch (error) {
-    console.log(error);
+    throw new Error("Error retiving company info");
   }
 };
 
@@ -46,17 +47,13 @@ export const createCompany = async ({
   newCompany: CompanyForm;
 }) => {
   try {
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const session = data.session?.access_token;
-    if (!session) {
-      redirect("/auth");
-    }
+    const { access_token } = await getSession();
+    if (!access_token) redirect("/auth");
     const response = await fetch(`${SERVER_URL}/company_info`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: session,
+        Authorization: access_token,
       },
       body: JSON.stringify(newCompany),
     });
@@ -68,7 +65,7 @@ export const createCompany = async ({
       return error;
     }
     const res: Company = await response.json();
-    revalidatePath("/");
+    revalidateTag("company_info");
     return res;
   } catch (error) {
     throw new Error("Error Creating Company ");
@@ -83,18 +80,15 @@ export const updateCompany = async ({
   id: string;
 }) => {
   try {
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const session = data.session?.access_token;
+    const { access_token } = await getSession();
+    if (!access_token) redirect("/auth");
     const formData = { id, ...newCompany };
-    if (!session) {
-      redirect("/auth");
-    }
+
     const response = await fetch(`${SERVER_URL}/company_info`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: session,
+        Authorization: access_token,
       },
       body: JSON.stringify(formData),
     });
@@ -105,7 +99,7 @@ export const updateCompany = async ({
       return error;
     }
     const res: Company = await response.json();
-    revalidatePath("/");
+    revalidateTag("company_info");
     return res;
   } catch (error) {
     throw new Error("Error Creating Company");

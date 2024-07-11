@@ -13,16 +13,15 @@ import {
 import { AlertModal } from "@/components/modal/alert-modal";
 import { watchlistFormSchema, type WatchlistForm } from "../schema";
 import KeywordSearch from "./KeywordSearch";
-import { Check, Trash, X } from "lucide-react";
+import { Trash, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/custom-input";
-import { v4 as uuid } from "uuid";
 import type { Task, Watchlist } from "@/lib/types";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
-import TaskItem from "../../tasks/components/TaskItem";
 import { Keyword } from "@/lib/types";
-import { createWatchlist } from "@/lib/actions/watchlist";
+import { createWatchlist, deleteWatchlist } from "@/lib/actions/watchlist";
+import { Spinner } from "@/components/Spinner";
 
 const WatchlistForm = ({
   initialData,
@@ -34,6 +33,9 @@ const WatchlistForm = ({
   suggestedKeywords: Keyword[] | undefined;
 }) => {
   const { toast } = useToast();
+  const params: {
+    watchlistID: string;
+  } = useParams();
 
   const router = useRouter();
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -52,11 +54,12 @@ const WatchlistForm = ({
     initialData ? initialData.tasks : []
   );
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<WatchlistForm>({
     resolver: zodResolver(watchlistFormSchema),
     defaultValues,
   });
-  const isLoading = form.formState.isLoading;
+
   const error = form.formState.errors;
 
   async function update({
@@ -67,7 +70,9 @@ const WatchlistForm = ({
     watchlistTasks: Task[] | undefined;
   }) {}
   async function create({ newWatchList }: { newWatchList: WatchlistForm }) {
+    setIsLoading(true);
     const res = await createWatchlist({ newWatchList });
+    setIsLoading(false);
     if ("error" in res) {
       toast({
         title: "Error creating watchlist",
@@ -87,35 +92,6 @@ const WatchlistForm = ({
       titleInputRef.current.focus();
     }
   }, []);
-  const generateTasks = () => {
-    const newTasks: Task = {
-      user_id: userID,
-      status: "Not Started",
-      priority: "Low",
-      approved: false,
-      deadline: new Date(),
-      assigned_to: "To Self",
-      created_at: new Date(),
-      id: uuid(),
-      title: `Dummy Task  xyz`,
-      description: `This is the description for dummy task`,
-    };
-    setWatchlistTasks((prevTasks) => {
-      if (prevTasks === undefined) {
-        return [newTasks];
-      } else return [...prevTasks, newTasks];
-    });
-  };
-  const approveTask = ({ id }: { id: string }) => {
-    const updatedTasks = watchlistTasks?.map((task) =>
-      task.id === id ? { ...task, approved: true } : task
-    );
-    setWatchlistTasks(updatedTasks);
-  };
-
-  const rejectTask = ({ id }: { id: string }) => {
-    setWatchlistTasks(watchlistTasks?.filter((t) => t.id !== id));
-  };
 
   const handleSaveAction = () => {
     const newWatchList: WatchlistForm = {
@@ -145,17 +121,24 @@ const WatchlistForm = ({
       create({ newWatchList });
     }
   };
-  const handleDelete = () => {
-    // if (initialData) {
-    //   setWatchlists((prevWatchlists) =>
-    //     prevWatchlists.filter((watchlist) => watchlist.id !== initialData.id)
-    //   );
-    //   toast({
-    //     description: "Watchlist deleted successfully",
-    //   });
-    //   router.push("/watchlist");
-    // }
-  };
+  async function handleDelete() {
+    const id = params.watchlistID;
+    setIsLoading(true);
+    const res = await deleteWatchlist({ id });
+    setIsLoading(false);
+    if ("error" in res) {
+      toast({
+        title: "Error deleting watchlist",
+        description: res.error,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Watchlist deleted successfully",
+      });
+      router.push("/watchlist");
+    }
+  }
 
   const handleSelectKeyword = (keyword: Keyword) => {
     const currentKeywords = form.getValues("keywords");
@@ -268,7 +251,7 @@ const WatchlistForm = ({
             />
           </form>
         </Form>
-        {watchlistTasks && watchlistTasks.length > 0 && (
+        {/* {watchlistTasks && watchlistTasks.length > 0 && (
           <div className="w-full mt-8">
             <h2 className="text-2xl font-bold mb-4">Generated Tasks</h2>
             <div className="space-y-4 mb-4">
@@ -319,9 +302,9 @@ const WatchlistForm = ({
               )}
             </div>
           </div>
-        )}
+        )} */}
         <Button className="self-end " type="submit" onClick={handleSaveAction}>
-          {action}
+          {isLoading ? <Spinner size="default" /> : action}
         </Button>
       </div>
     </>

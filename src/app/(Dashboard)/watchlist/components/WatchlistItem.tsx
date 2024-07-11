@@ -8,7 +8,6 @@ import { deleteTask, updateTask } from "@/lib/actions/tasks";
 
 const WatchlistItem = ({ data }: { data: Watchlist }) => {
   const router = useRouter();
-  console.log(data);
 
   function editWatchlist() {
     router.push(`watchlist/${data.id}`);

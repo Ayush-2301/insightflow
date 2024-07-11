@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { taskFormSchema, type TaskForm } from "../schema";
@@ -10,7 +10,6 @@ import { Input as OriginalInput } from "@/components/ui/input";
 import { TaskSelectComponent } from "./TaskSelectComponent";
 import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
-import { v4 as uuid } from "uuid";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -34,12 +33,11 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { SheetClose } from "@/components/ui/sheet";
-import { Context } from "@/components/provider/ContextProvider";
 import type { Task } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { deleteTask, insertTask, updateTask } from "@/lib/actions/tasks";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Context } from "@/components/provider/ContextProvider";
 
 const StatusOption = [
   { label: "Not Started", value: "Not Started", color: "#adb5bd" },
@@ -75,6 +73,7 @@ const TaskForm = ({
 }) => {
   const router = useRouter();
   const { toast } = useToast();
+  const { setTaskID, setOpenSheet } = useContext(Context);
   const [open, setOpen] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const title = initialData ? "Edit Task" : "Create Task";
@@ -123,7 +122,7 @@ const TaskForm = ({
       toast({
         title: "Task updated successfully",
       });
-      router.refresh();
+
       router.push("/tasks");
     }
   }
@@ -139,8 +138,8 @@ const TaskForm = ({
       toast({
         title: "Task created successfully",
       });
-      router.refresh();
       router.push("/tasks");
+      router.refresh();
     }
   }
   const onSubmit = () => {
@@ -173,13 +172,14 @@ const TaskForm = ({
       toast({
         title: "Task deleted successfully",
       });
+      setOpenSheet((prev) => !prev);
+      setTaskID("");
+      router.push("/tasks");
     }
   }
   const onDelete = () => {
     if (initialData) {
       deleteDetail(initialData.id);
-      setOpen(false);
-      router.push("/tasks");
     }
   };
   useEffect(() => {
@@ -196,7 +196,10 @@ const TaskForm = ({
         onConfirm={onDelete}
         loading={isLoading}
       />
-      <div className="flex flex-col items-start py-4  space-y-8 ">
+      <div
+        suppressHydrationWarning
+        className="flex flex-col items-start py-4  space-y-8 "
+      >
         <div className="flex justify-between  w-full item-start">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
@@ -221,10 +224,12 @@ const TaskForm = ({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <Button
-                    type="button"
-                    variant={"ghost"}
-                    className=" justify-start  pl-1"
+                  <div
+                    className=" 
+                    inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50
+                    
+                    h-10 px-4 py-2 pl-1
+                   hover:bg-accent  "
                   >
                     <FormControl>
                       <Input
@@ -235,7 +240,7 @@ const TaskForm = ({
                         ref={titleInputRef}
                       />
                     </FormControl>
-                  </Button>
+                  </div>
                 </FormItem>
               )}
             />

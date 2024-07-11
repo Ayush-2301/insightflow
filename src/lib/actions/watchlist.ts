@@ -1,28 +1,26 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createSupabaseServerClient } from "../supabase/server";
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { WatchlistForm } from "@/app/(Dashboard)/watchlist/schema";
 import { insertWatchlist, Watchlist, WatchlistReturned } from "../types";
-
-// const SERVER_URL = "http://localhost:5555";
+import { getSession } from "./index";
 const SERVER_URL = process.env.SERVER_URL;
 
 export const getAllWatchlist = async () => {
   try {
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const session = data.session?.access_token;
-    if (!session) {
-      redirect("/auth");
-    }
+    const { access_token, user } = await getSession();
+    if (!access_token) redirect("/auth");
     const response = await fetch(
-      `${SERVER_URL}/watchlist/?user_id=${data.session?.user.id}`,
+      `${SERVER_URL}/watchlist/?user_id=${user.id}`,
       {
         method: "GET",
         headers: {
-          Authorization: session,
+          Authorization: access_token,
+        },
+        next: {
+          revalidate: 3600,
+          tags: ["watchlist"],
         },
       }
     );
@@ -37,19 +35,24 @@ export const getAllWatchlist = async () => {
       return res;
     }
   } catch (error) {
-    console.log(error);
+    throw new Error("Error fetching watchlist");
   }
 };
 
 export const getWatchlist = async ({ id }: { id: string }) => {
   try {
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const session = data.session?.access_token;
-    if (!session) {
-      redirect("/auth");
-    }
-    const response = await fetch(`${SERVER_URL}/watchlist/?id=${id}`);
+    const { access_token } = await getSession();
+    if (!access_token) redirect("/auth");
+    const response = await fetch(`${SERVER_URL}/watchlist/?id=${id}`, {
+      method: "GET",
+      headers: {
+        Authorization: access_token,
+      },
+      next: {
+        revalidate: 3600,
+        tags: ["watchlist"],
+      },
+    });
 
     const res: WatchlistReturned[] = await response.json();
     const result: Watchlist = {
@@ -62,7 +65,7 @@ export const getWatchlist = async ({ id }: { id: string }) => {
     };
     return result;
   } catch (error) {
-    console.log(error);
+    throw new Error("Error fetching watchlist");
   }
 };
 
@@ -72,12 +75,8 @@ export const createWatchlist = async ({
   newWatchList: WatchlistForm;
 }) => {
   try {
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const session = data.session?.access_token;
-    if (!session) {
-      redirect("/auth");
-    }
+    const { access_token, user } = await getSession();
+    if (!access_token) redirect("/auth");
     const newData: insertWatchlist = {
       watchlist: {
         user_id: newWatchList.user_id,
@@ -90,7 +89,7 @@ export const createWatchlist = async ({
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: session,
+        Authorization: access_token,
       },
       body: JSON.stringify(newData),
     });
@@ -99,6 +98,59 @@ export const createWatchlist = async ({
         error: string;
       } = await response.json();
       return error;
-    } else return await response.json();
-  } catch (error) {}
+    } else {
+      revalidateTag("watchlist");
+      return await response.json();
+    }
+  } catch (error) {
+    throw new Error("Error creating task");
+  }
 };
+
+export const deleteWatchlist = async ({ id }: { id: string }) => {
+  try {
+    const { access_token } = await getSession();
+
+    if (!access_token) redirect("/auth");
+    const response = await fetch(`${SERVER_URL}/watchlist/?id=${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: access_token,
+      },
+    });
+
+    if (!response.ok) {
+      const error: {
+        error: string;
+      } = await response.json();
+      console.log(error);
+      return error;
+    } else {
+      revalidateTag("watchlist");
+      revalidateTag("tasks");
+
+      return await response.json();
+    }
+  } catch (error) {
+    throw new Error("Error deleting company");
+  }
+};
+
+// export const updateWatchlist = async({ newWatchlist, id }: {
+//   newWatchlist: WatchlistForm;
+//   id: string;
+// }) => {
+//   try {
+//      const supabase = createSupabaseServerClient();
+//      const { data } = await supabase.auth.getSession();
+//      const session = data.session?.access_token;
+//      if (!session) {
+//        redirect("/auth");
+//      }
+//     const newData = updateWatchlist = {
+
+//     }
+//   } catch (error) {
+
+//   }
+// }

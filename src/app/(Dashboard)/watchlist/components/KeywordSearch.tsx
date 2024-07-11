@@ -44,7 +44,10 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
   };
 
   const handleSelect = (keyword: Keyword) => {
-    if (!selectedKeywords.some((selected) => selected.id === keyword.id)) {
+    if (
+      !isLoading &&
+      !selectedKeywords.some((selected) => selected.id === keyword.id)
+    ) {
       onSelect(keyword);
     }
     setSuggestions([]);
@@ -92,6 +95,7 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
         <input
           type="text"
           value={query}
+          disabled={isLoading}
           onChange={handleInputChange}
           placeholder="Search keywords"
           className="w-full border p-2 rounded-md"
@@ -153,6 +157,7 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
           {suggestedKeywords && suggestedKeywords.length > 10 && (
             <Button
               type="button"
+              disabled={isLoading}
               onClick={toggleShowMore}
               variant={"outline"}
               className="mt-3 text-blue-500 hover:underline focus:outline-none "
