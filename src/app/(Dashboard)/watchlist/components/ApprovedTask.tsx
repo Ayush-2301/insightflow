@@ -4,7 +4,10 @@ import { getAllTaskByWatchlistID } from "@/lib/actions/tasks";
 
 const ApprovedTask = async ({ watchlistID }: { watchlistID: string }) => {
   const tasks = await getAllTaskByWatchlistID({ watchlistID });
-  if ("error" in tasks) return null;
+
+  if ("error" in tasks || (Array.isArray(tasks) && tasks.length <= 0)) {
+    return null;
+  }
   return (
     <div className="w-full mt-8">
       <h2 className="text-2xl font-bold mb-4">Assigned Tasks</h2>

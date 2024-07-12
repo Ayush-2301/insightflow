@@ -34,6 +34,15 @@ export interface Task {
   assigned_to: string;
   created_at: Date;
 }
+export interface RecommendedTask {
+  task_id: string;
+  user_id: string;
+  watchlist_id: string;
+  domain: string;
+  category: string;
+  task: string;
+  created_at: null | true | false;
+}
 
 // export interface Watchlist {
 //   id: string;

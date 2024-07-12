@@ -1,8 +1,6 @@
+import { getRecommendedTask } from "@/lib/actions/recommended";
 import Recommendedtask from "../../components/Recommendedtask";
 
-async function pause(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 const recommendedPage = async ({
   params,
 }: {
@@ -12,12 +10,13 @@ const recommendedPage = async ({
 }) => {
   const id = params.watchlistID;
   if (id === "new") return null;
-  await pause(3000);
+  const recommendedTask = await getRecommendedTask({ id });
+
   return (
     <div className="w-full mt-8">
       <h2 className="text-2xl font-bold mb-4">Recommended Tasks</h2>
       <div className="space-y-4 mb-4">
-        <Recommendedtask />
+        <Recommendedtask initialRecommendedTask={recommendedTask} />
       </div>
     </div>
   );

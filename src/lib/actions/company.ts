@@ -37,7 +37,7 @@ export const getCompany = async () => {
 
     return res;
   } catch (error) {
-    throw new Error("Error retiving company info");
+    throw new Error("Error fetching company info");
   }
 };
 

@@ -9,6 +9,7 @@ const approvedTaskpage = async ({
 }) => {
   const id = params.watchlistID;
   if (id === "new") return null;
+
   return <ApprovedTask watchlistID={id} />;
 };
 

@@ -20,7 +20,11 @@ import type { Task, Watchlist } from "@/lib/types";
 import { useParams, useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { Keyword } from "@/lib/types";
-import { createWatchlist, deleteWatchlist } from "@/lib/actions/watchlist";
+import {
+  createWatchlist,
+  deleteWatchlist,
+  updateWatchlist,
+} from "@/lib/actions/watchlist";
 import { Spinner } from "@/components/Spinner";
 
 const WatchlistForm = ({
@@ -65,10 +69,29 @@ const WatchlistForm = ({
   async function update({
     newWatchList,
     watchlistTasks,
+    id,
   }: {
     newWatchList: WatchlistForm;
     watchlistTasks: Task[] | undefined;
-  }) {}
+    id: string;
+  }) {
+    setIsLoading(true);
+    const res = await updateWatchlist({ newWatchList, id });
+    setIsLoading(false);
+    if ("error" in res) {
+      toast({
+        title: "Error updating watchlist",
+        description: res.error,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Watchlist updated successfully",
+      });
+      router.push(`/watchlist/${initialData?.id}`);
+      router.refresh();
+    }
+  }
   async function create({ newWatchList }: { newWatchList: WatchlistForm }) {
     setIsLoading(true);
     const res = await createWatchlist({ newWatchList });
@@ -83,7 +106,7 @@ const WatchlistForm = ({
       toast({
         title: "Watchlist created successfully",
       });
-      router.push(`/watchlist`);
+      router.push(`/watchlist/${res.watchlist.id}`);
     }
   }
 
@@ -116,7 +139,8 @@ const WatchlistForm = ({
     }
 
     if (initialData) {
-      update({ newWatchList, watchlistTasks });
+      const id = initialData.id;
+      update({ newWatchList, watchlistTasks, id });
     } else {
       create({ newWatchList });
     }

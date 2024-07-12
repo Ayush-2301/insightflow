@@ -5,6 +5,7 @@ import { v4 as uuid } from "uuid";
 import { Keyword } from "@/lib/types";
 import { debounce } from "@/lib/utils";
 import { searchKeyword } from "@/lib/actions";
+import { Spinner } from "@/components/Spinner";
 
 interface KeywordSearchProps {
   onSelect: (keyword: Keyword) => void;
@@ -22,12 +23,24 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Keyword[]>([]);
   const [showMore, setShowMore] = useState(false);
+  const [fetchingKeywords, setFetchingKeywords] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
   const fetchKeywords = async (searchString: string) => {
+    setFetchingKeywords(true);
     try {
       const response = await searchKeyword({ searchString });
-      if (response) setSuggestions(response);
-    } catch (error) {}
+      if (response) {
+        setSuggestions(response);
+      } else {
+        setSuggestions([]);
+      }
+    } catch (error) {
+      console.error("Error fetching keywords:", error);
+      setSuggestions([]);
+    } finally {
+      setFetchingKeywords(false);
+    }
   };
 
   const debouncedFetchKeywords = useCallback(
@@ -109,7 +122,13 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
           Add
         </Button>
       </div>
-      {suggestions.length > 0 && (
+      {fetchingKeywords && (
+        <div className="absolute left-0 right-0 bg-white border mt-1 z-10 max-h-60 overflow-y-auto flex justify-center items-center py-4">
+          <Spinner size={"lg"} />
+          {/* Replace Spinner with your loading component */}
+        </div>
+      )}
+      {suggestions.length > 0 && !fetchingKeywords && (
         <ul className="absolute left-0 right-0 bg-white border mt-1 z-10 max-h-60 overflow-y-auto">
           {suggestions.map((suggestion) => (
             <li
@@ -122,7 +141,7 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
           ))}
         </ul>
       )}
-      {query && (
+      {!fetchingKeywords && query && suggestions.length === 0 && (
         <Button
           type="button"
           disabled={isLoading}
@@ -154,7 +173,7 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
               </span>
             ))}
           </div>
-          {suggestedKeywords && suggestedKeywords.length > 10 && (
+          {suggestedKeywords.length > 10 && (
             <Button
               type="button"
               disabled={isLoading}

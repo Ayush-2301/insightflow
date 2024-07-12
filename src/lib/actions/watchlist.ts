@@ -3,7 +3,12 @@
 import { redirect } from "next/navigation";
 import { revalidateTag } from "next/cache";
 import { WatchlistForm } from "@/app/(Dashboard)/watchlist/schema";
-import { insertWatchlist, Watchlist, WatchlistReturned } from "../types";
+import {
+  insertWatchlist,
+  Keyword,
+  Watchlist,
+  WatchlistReturned,
+} from "../types";
 import { getSession } from "./index";
 const SERVER_URL = process.env.SERVER_URL;
 
@@ -32,6 +37,7 @@ export const getAllWatchlist = async () => {
       return error;
     } else {
       const res: WatchlistReturned[] = await response.json();
+
       return res;
     }
   } catch (error) {
@@ -75,7 +81,7 @@ export const createWatchlist = async ({
   newWatchList: WatchlistForm;
 }) => {
   try {
-    const { access_token, user } = await getSession();
+    const { access_token } = await getSession();
     if (!access_token) redirect("/auth");
     const newData: insertWatchlist = {
       watchlist: {
@@ -100,7 +106,17 @@ export const createWatchlist = async ({
       return error;
     } else {
       revalidateTag("watchlist");
-      return await response.json();
+      const res: {
+        watchlist: {
+          id: string;
+          user_id: string;
+          title: string;
+          createdAt: Date;
+        };
+        keywords: Keyword[];
+      }[] = await response.json();
+
+      return res[0];
     }
   } catch (error) {
     throw new Error("Error creating task");
@@ -123,7 +139,7 @@ export const deleteWatchlist = async ({ id }: { id: string }) => {
       const error: {
         error: string;
       } = await response.json();
-      console.log(error);
+
       return error;
     } else {
       revalidateTag("watchlist");
@@ -133,6 +149,43 @@ export const deleteWatchlist = async ({ id }: { id: string }) => {
     }
   } catch (error) {
     throw new Error("Error deleting company");
+  }
+};
+
+export const updateWatchlist = async ({
+  newWatchList,
+  id,
+}: {
+  newWatchList: WatchlistForm;
+  id: string;
+}) => {
+  try {
+    const { access_token } = await getSession();
+    if (!access_token) redirect("/auth");
+    const newData = {
+      watchlist_id: id,
+      ...newWatchList,
+    };
+    const response = await fetch(`${SERVER_URL}/watchlist`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: access_token,
+      },
+      body: JSON.stringify(newData),
+    });
+    if (!response.ok) {
+      const error: {
+        error: string;
+      } = await response.json();
+      return error;
+    } else {
+      const res = await response.json();
+      revalidateTag("watchlist");
+      return res;
+    }
+  } catch (error) {
+    throw new Error("Error updating watchlist");
   }
 };
 

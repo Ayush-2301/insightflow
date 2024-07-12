@@ -19,17 +19,16 @@ export async function searchKeyword({
   searchString: string;
 }) {
   try {
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const session = data.session?.access_token;
-    if (!session) {
-      redirect("/auth");
-    }
+    const { access_token } = await getSession();
     const response = await fetch(
       `${SERVER_URL}/search_keywords?search_string=${searchString.toLowerCase()}`,
       {
         headers: {
-          Authorization: session,
+          Authorization: access_token,
+        },
+        next: {
+          revalidate: 1000,
+          tags: ["search_keywords"],
         },
       }
     );
