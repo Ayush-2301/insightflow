@@ -40,7 +40,7 @@ const watchlistMain = async ({
         <WatchlistForm
           userID={userID}
           initialData={initialData}
-          suggestedKeywords={suggestedKeywords}
+          initialsuggestedKeywords={suggestedKeywords}
         />
       )}
     </div>

@@ -6,11 +6,15 @@ import { type Task } from "../types";
 import { revalidateTag } from "next/cache";
 import { TaskForm } from "@/app/(Dashboard)/tasks/schema";
 import { getSession } from "./index";
+import { createSupabaseServerClient } from "../supabase/server";
 const SERVER_URL = process.env.SERVER_URL;
 
 export const getAllTasks = async () => {
   try {
-    const { access_token } = await getSession();
+    // const { access_token } = await getSession();
+    const supabase = createSupabaseServerClient();
+    const { data } = await supabase.auth.getSession();
+    const access_token = data.session?.access_token;
     if (!access_token) redirect("/auth");
     const response = await fetch(`${SERVER_URL}/tasks`, {
       method: "GET",
@@ -38,7 +42,10 @@ export const getAllTasks = async () => {
 
 export const getSingleTask = async ({ id }: { id: string }) => {
   try {
-    const { access_token } = await getSession();
+    // const { access_token } = await getSession();
+    const supabase = createSupabaseServerClient();
+    const { data } = await supabase.auth.getSession();
+    const access_token = data.session?.access_token;
     if (!access_token) redirect("/auth");
     const response = await fetch(`${SERVER_URL}/tasks/?id=${id}`, {
       method: "GET",
@@ -72,7 +79,10 @@ export const updateTask = async ({
   taskID: string;
 }) => {
   try {
-    const { access_token } = await getSession();
+    // const { access_token } = await getSession();
+    const supabase = createSupabaseServerClient();
+    const { data } = await supabase.auth.getSession();
+    const access_token = data.session?.access_token;
     if (!access_token) redirect("/auth");
     const taskData = { task_id: taskID, ...newTask };
 
@@ -101,7 +111,10 @@ export const updateTask = async ({
 
 export const insertTask = async ({ newTask }: { newTask: TaskForm }) => {
   try {
-    const { access_token } = await getSession();
+    // const { access_token } = await getSession();
+    const supabase = createSupabaseServerClient();
+    const { data } = await supabase.auth.getSession();
+    const access_token = data.session?.access_token;
     if (!access_token) redirect("/auth");
     const response = await fetch(`${SERVER_URL}/tasks`, {
       method: "POST",
@@ -128,7 +141,10 @@ export const insertTask = async ({ newTask }: { newTask: TaskForm }) => {
 
 export const deleteTask = async ({ id }: { id: string }) => {
   try {
-    const { access_token } = await getSession();
+    // const { access_token } = await getSession();
+    const supabase = createSupabaseServerClient();
+    const { data } = await supabase.auth.getSession();
+    const access_token = data.session?.access_token;
     if (!access_token) redirect("/auth");
     const response = await fetch(`${SERVER_URL}/tasks/?id=${id}`, {
       method: "DELETE",
@@ -157,7 +173,10 @@ export const getAllTaskByWatchlistID = async ({
   watchlistID: string;
 }) => {
   try {
-    const { access_token } = await getSession();
+    // const { access_token } = await getSession();
+    const supabase = createSupabaseServerClient();
+    const { data } = await supabase.auth.getSession();
+    const access_token = data.session?.access_token;
     if (!access_token) redirect("/auth");
     const response = await fetch(
       `${SERVER_URL}/tasks/?watchlist_id=${watchlistID}`,

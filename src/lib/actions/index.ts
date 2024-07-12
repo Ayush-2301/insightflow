@@ -19,13 +19,19 @@ export async function searchKeyword({
   searchString: string;
 }) {
   try {
-    const { access_token } = await getSession();
+    // const { access_token } = await getSession();
+
+    const supabase = createSupabaseServerClient();
+    const { data } = await supabase.auth.getSession();
+    const access_token = data.session?.access_token;
+
     const response = await fetch(
       `${SERVER_URL}/search_keywords?search_string=${searchString.toLowerCase()}`,
       {
-        headers: {
-          Authorization: access_token,
-        },
+        method: "GET",
+        // headers: {
+        //   Authorization: access_token,
+        // },
         next: {
           revalidate: 1000,
           tags: ["search_keywords"],
@@ -41,12 +47,12 @@ export async function searchKeyword({
 
 export const getSession = async () => {
   const base64Data = cookies()
-    .get(`sb-${process.env.SUPABASE_DB_ID}-auth-token`)
+    .get(`sb-${process.env.SUPABASE_DB_ID}-auth-token.0`)
     ?.value.replace(/^base64-/, "");
   const session: Session =
     base64Data &&
     (await JSON.parse(Buffer.from(base64Data, "base64").toString("ascii")));
-  const access_token = session.access_token;
-  const user = session.user;
+  const access_token = session?.access_token;
+  const user = session?.user;
   return { access_token, user };
 };
