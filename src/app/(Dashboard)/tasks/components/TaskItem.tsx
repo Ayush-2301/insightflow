@@ -68,7 +68,7 @@ const TaskItem = ({ data }: { data: Task }) => {
             <p className="text-white/80">{data.priority}</p>
           </div>
         </div>
-        <div className="ml-4 text-gray-600">
+        <div className="ml-4 text-gray-600 self-end">
           Assigned to : {data.assigned_to}
         </div>
       </div>

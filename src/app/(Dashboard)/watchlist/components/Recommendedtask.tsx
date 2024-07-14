@@ -81,12 +81,13 @@ const Recommendedtask = ({
       toast({
         title: "Task approved successfully",
       });
-      setApproveTaskLoading(false);
+
       router.refresh();
       setRecommendedTask((prev) =>
         prev ? prev.filter((task) => task.task_id !== id) : []
       );
     }
+    setApproveTaskLoading(false);
   };
 
   const rejectTask = async (id: string) => {
@@ -100,13 +101,13 @@ const Recommendedtask = ({
         variant: "destructive",
       });
     } else {
-      setApproveTaskLoading(false);
       toast({ title: "Task rejected successfully" });
       router.refresh();
       setRecommendedTask((prev) =>
         prev ? prev.filter((task) => task.task_id !== id) : []
       );
     }
+    setApproveTaskLoading(false);
   };
 
   useEffect(() => {
