@@ -112,17 +112,10 @@ const TaskForm = ({
     taskID: string;
   }) {
     const res = await updateTask({ newTask, taskID });
-    if ("error" in res) {
-      toast({
-        title: "Error updating task",
-        description: res.error,
-        variant: "destructive",
-      });
-    } else {
+    if (res) {
       toast({
         title: "Task updated successfully",
       });
-
       router.push("/tasks");
     }
   }
@@ -387,6 +380,7 @@ const TaskForm = ({
                 <Button
                   disabled={isLoading}
                   className="border"
+                  type="button"
                   onClick={onSubmit}
                 >
                   {action}

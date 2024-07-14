@@ -15,23 +15,34 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { WatchlistsSkeleton } from "./Watchlists";
+import { updateRecommendedTask } from "@/lib/actions/recommended";
+import { useToast } from "@/components/ui/use-toast";
+import { Spinner } from "@/components/Spinner";
 
 const ITEMS_PER_PAGE = 5;
 
 const Recommendedtask = ({
   initialRecommendedTask,
 }: {
-  initialRecommendedTask: RecommendedTask[] | undefined;
+  initialRecommendedTask:
+    | {
+        paginatedResult: RecommendedTask[];
+        totalCount: string;
+      }
+    | undefined;
 }) => {
   const router = useRouter();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(
-    initialRecommendedTask && initialRecommendedTask?.length === 0
+    initialRecommendedTask &&
+      initialRecommendedTask.paginatedResult?.length === 0
   );
   const [recommendedTask, setRecommendedTask] = useState<
     RecommendedTask[] | undefined
-  >(initialRecommendedTask);
+  >(initialRecommendedTask?.paginatedResult);
+  const [approveTaskLoading, setApproveTaskLoading] = useState(false);
   const supabase = createSupabaseBrowserClient();
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,12 +67,46 @@ const Recommendedtask = ({
 
   const totalPages = Math.ceil(filteredTasks.length / ITEMS_PER_PAGE);
 
-  const approveTask = () => {
-    // Task approval logic
+  const approveTask = async (id: string) => {
+    setApproveTaskLoading(true);
+    const status = true;
+    const res = await updateRecommendedTask({ id, status });
+    if ("error" in res) {
+      toast({
+        title: "Error approving task",
+        description: res.error,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Task approved successfully",
+      });
+      setApproveTaskLoading(false);
+      router.refresh();
+      setRecommendedTask((prev) =>
+        prev ? prev.filter((task) => task.task_id !== id) : []
+      );
+    }
   };
 
-  const rejectTask = () => {
-    // Task rejection logic
+  const rejectTask = async (id: string) => {
+    setApproveTaskLoading(true);
+    const status = false;
+    const res = await updateRecommendedTask({ id, status });
+    if ("error" in res) {
+      toast({
+        title: "Error rejecting task",
+        description: res.error,
+        variant: "destructive",
+      });
+    } else {
+      setApproveTaskLoading(false);
+      toast({ title: "Task rejected successfully" });
+      router.refresh();
+      setRecommendedTask((prev) =>
+        prev ? prev.filter((task) => task.task_id !== id) : []
+      );
+    }
   };
 
   useEffect(() => {
@@ -77,7 +122,7 @@ const Recommendedtask = ({
         (payload) => {
           setLoading(false);
           const newTask = payload.new as RecommendedTask;
-          setRecommendedTask((prev) => (prev ? [...prev, newTask] : [newTask]));
+          setRecommendedTask((prev) => (prev ? [newTask, ...prev] : [newTask]));
         }
       )
       .subscribe();
@@ -139,16 +184,20 @@ const Recommendedtask = ({
                 <Button
                   variant={"outline"}
                   className="p-2 invisible group-hover/pending:visible"
-                  onClick={() => approveTask()}
+                  onClick={() => approveTask(task.task_id)}
                 >
-                  <Check className="w-4 h-4" />
+                  {approveTaskLoading ? (
+                    <Spinner />
+                  ) : (
+                    <Check className="w-4 h-4" />
+                  )}
                 </Button>
                 <Button
                   className="p-2 invisible group-hover/pending:visible"
                   variant="outline"
-                  onClick={() => rejectTask()}
+                  onClick={() => rejectTask(task.task_id)}
                 >
-                  <X className="w-4 h-4" />
+                  {approveTaskLoading ? <Spinner /> : <X className="w-4 h-4" />}
                 </Button>
               </div>
             </div>

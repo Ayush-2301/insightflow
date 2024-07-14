@@ -6,19 +6,16 @@ import { CompanyForm } from "@/app/(Dashboard)/(home)/schema";
 import { revalidateTag } from "next/cache";
 import { getSession } from "./index";
 import { createSupabaseServerClient } from "../supabase/server";
-import { cookies } from "next/headers";
 const SERVER_URL = process.env.SERVER_URL;
 
 export const getCompany = async () => {
   try {
+    // const { access_token, user } = await getSession();
     const supabase = createSupabaseServerClient();
     const { data } = await supabase.auth.getSession();
     const access_token = data.session?.access_token;
-
     if (!access_token) redirect("/auth");
-    // const x = await getSession();
-    // console.log(x.access_token);
-    // console.log(cookies().getAll());
+    console.log(data.session?.user.id);
     const response = await fetch(
       `${SERVER_URL}/company_info/?user_id=${data.session?.user.id}`,
 
@@ -41,7 +38,6 @@ export const getCompany = async () => {
 
     return res;
   } catch (error) {
-    console.log(error);
     throw new Error("Error fetching company info");
   }
 };

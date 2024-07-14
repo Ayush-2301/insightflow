@@ -16,16 +16,19 @@ export const getAllTasks = async () => {
     const { data } = await supabase.auth.getSession();
     const access_token = data.session?.access_token;
     if (!access_token) redirect("/auth");
-    const response = await fetch(`${SERVER_URL}/tasks`, {
-      method: "GET",
-      headers: {
-        Authorization: access_token,
-      },
-      next: {
-        revalidate: 3600,
-        tags: ["tasks"],
-      },
-    });
+    const response = await fetch(
+      `${SERVER_URL}/tasks/?user_id=${data.session?.user.id}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: access_token,
+        },
+        next: {
+          revalidate: 3600,
+          tags: ["tasks"],
+        },
+      }
+    );
     if (!response.ok) {
       const error: {
         error: string;
@@ -47,7 +50,7 @@ export const getSingleTask = async ({ id }: { id: string }) => {
     const { data } = await supabase.auth.getSession();
     const access_token = data.session?.access_token;
     if (!access_token) redirect("/auth");
-    const response = await fetch(`${SERVER_URL}/tasks/?id=${id}`, {
+    const response = await fetch(`${SERVER_URL}/tasks/?task_id=${id}`, {
       method: "GET",
       headers: {
         Authorization: access_token,
@@ -94,12 +97,7 @@ export const updateTask = async ({
       },
       body: JSON.stringify([taskData]),
     });
-    if (!response.ok) {
-      const error: {
-        error: string;
-      } = await response.json();
-      return error;
-    } else {
+    if (response.ok) {
       revalidateTag("tasks");
       const res: Task[] = await response.json();
       return res[0];

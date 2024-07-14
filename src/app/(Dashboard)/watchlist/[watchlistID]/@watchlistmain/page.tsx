@@ -34,6 +34,7 @@ const watchlistMain = async ({
       };
     });
   }
+
   return (
     <div>
       {userID && (

@@ -40,7 +40,7 @@ const TaskItem = ({ data }: { data: Task }) => {
       onClick={handleRouting}
       className="flex justify-between  cursor-pointer px-6 py-4 border rounded-lg shadow"
     >
-      <div className=" flex flex-col space-y-1">
+      <div className=" flex flex-col space-y-1 max-w-[70%]">
         <h1 className="text-xl font-semibold">{data.title}</h1>
         <p className="text-gray-600">{data.description}</p>
         <div className="flex items-center gap-2 text-gray-400">

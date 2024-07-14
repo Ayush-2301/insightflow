@@ -10,7 +10,11 @@ const recommendedPage = async ({
 }) => {
   const id = params.watchlistID;
   if (id === "new") return null;
-  const recommendedTask = await getRecommendedTask({ id });
+  const recommendedTask = await getRecommendedTask({
+    id,
+    page: "1",
+    pagesize: "10",
+  });
 
   return (
     <div className="w-full mt-8">
