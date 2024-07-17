@@ -1,10 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
+import { Check, SortAsc, SortDesc, X } from "lucide-react";
 import { RecommendedTask } from "@/lib/types";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   Pagination,
@@ -15,35 +15,33 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { WatchlistsSkeleton } from "./Watchlists";
-import { updateRecommendedTask } from "@/lib/actions/recommended";
+import {
+  getRecommendedTask,
+  updateRecommendedTask,
+} from "@/lib/actions/recommended";
 import { useToast } from "@/components/ui/use-toast";
 import { Spinner } from "@/components/Spinner";
 
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 const ITEMS_PER_PAGE = 5;
 
-const Recommendedtask = ({
-  initialRecommendedTask,
-}: {
-  initialRecommendedTask:
-    | {
-        paginatedResult: RecommendedTask[];
-        totalCount: string;
-      }
-    | undefined;
-}) => {
-  console.log("Recommended", initialRecommendedTask);
+const Recommendedtask = ({ id }: { id: string }) => {
   const router = useRouter();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(
-    initialRecommendedTask &&
-      initialRecommendedTask.paginatedResult?.length === 0
-  );
-  const [recommendedTask, setRecommendedTask] = useState<
-    RecommendedTask[] | undefined
-  >(initialRecommendedTask?.paginatedResult);
-  console.log(recommendedTask);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "none">("none");
+  const [recommendedTask, setRecommendedTask] = useState<RecommendedTask[]>([]);
+  const [loading, setLoading] = useState(true);
   const [approveTaskLoading, setApproveTaskLoading] = useState(false);
   const supabase = createSupabaseBrowserClient();
 
@@ -54,6 +52,9 @@ const Recommendedtask = ({
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+  const handleSortChange = (value: "asc" | "desc") => {
+    setSortOrder(value);
   };
 
   const filteredTasks = Array.isArray(recommendedTask)
@@ -111,6 +112,23 @@ const Recommendedtask = ({
     }
     setApproveTaskLoading(false);
   };
+  useEffect(() => {
+    async function getTasks() {
+      setLoading(true);
+      const tasks = await getRecommendedTask({
+        id: id,
+        page: "1",
+        pagesize: "10",
+      });
+      if (tasks?.paginatedResult && tasks?.paginatedResult.length >= 1) {
+        setRecommendedTask(tasks.paginatedResult);
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
+    }
+    getTasks();
+  }, []);
 
   useEffect(() => {
     const channel = supabase
@@ -134,6 +152,12 @@ const Recommendedtask = ({
       supabase.removeChannel(channel);
     };
   }, [supabase, router]);
+  useEffect(() => {
+    const sortedTasks = [...recommendedTask].sort((a, b) =>
+      sortOrder === "asc" ? a.clarity - b.clarity : b.clarity - a.clarity
+    );
+    setRecommendedTask(sortedTasks);
+  }, [sortOrder]);
 
   const highlightText = (text: string, highlight: string) => {
     if (!highlight.trim()) {
@@ -142,7 +166,7 @@ const Recommendedtask = ({
     const regex = new RegExp(`(${highlight})`, "gi");
     return text.split(regex).map((part, index) =>
       regex.test(part) ? (
-        <span key={index} className="bg-yellow-200">
+        <span key={index} className="bg-purple-300">
           {part}
         </span>
       ) : (
@@ -163,6 +187,23 @@ const Recommendedtask = ({
           onChange={handleSearchChange}
           placeholder="Search Recommended Tasks"
         />
+        <Select onValueChange={handleSortChange}>
+          <SelectTrigger className="w-fit">
+            <SelectValue placeholder="Sort" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Sort by clarity</SelectLabel>
+
+              <SelectItem value="dsc" className="cursor-pointer">
+                Highest to Lowest Clarity
+              </SelectItem>
+              <SelectItem value="asc" className="cursor-pointer">
+                Lowest to Highest Clarity
+              </SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
         <Button>Search</Button>
       </div>
       <div className="h-full flex flex-col gap-2">

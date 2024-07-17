@@ -25,13 +25,14 @@ export async function searchKeyword({
     const access_token = data.session?.access_token;
     if (!access_token) redirect("/auth");
     const response = await fetch(
-      `${SERVER_URL}/search_keywords?search_string=${searchString.toLowerCase()}`,
+      `${SERVER_URL}/search_keywords?search_string=${searchString}`,
       {
+        method: "GET",
         headers: {
           Authorization: access_token,
         },
         next: {
-          revalidate: 1000,
+          revalidate: 3600,
           tags: ["search_keywords"],
         },
       }

@@ -76,11 +76,10 @@ const WatchlistForm = ({
 
   async function update({
     newWatchList,
-    watchlistTasks,
     id,
   }: {
     newWatchList: WatchlistForm;
-    watchlistTasks: Task[] | undefined;
+
     id: string;
   }) {
     setIsLoading(true);
@@ -102,6 +101,7 @@ const WatchlistForm = ({
   async function create({ newWatchList }: { newWatchList: WatchlistForm }) {
     setIsLoading(true);
     const res = await createWatchlist({ newWatchList });
+    console.log(res);
     setIsLoading(false);
     if ("error" in res) {
       toast({
@@ -172,7 +172,7 @@ const WatchlistForm = ({
 
     if (initialData) {
       const id = initialData.id;
-      update({ newWatchList, watchlistTasks, id });
+      update({ newWatchList, id });
     } else {
       create({ newWatchList });
     }

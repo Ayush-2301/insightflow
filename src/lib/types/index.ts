@@ -44,6 +44,7 @@ export interface RecommendedTask {
   category: string;
   task: string;
   created_at: null | true | false;
+  clarity: number;
 }
 
 export interface Keyword {

@@ -18,6 +18,9 @@ import {
   LucideCirclePlay,
   UsersIcon,
   CalendarIcon,
+  EllipsisVertical,
+  Plus,
+  Trello,
 } from "lucide-react";
 import {
   Form,
@@ -38,6 +41,12 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { deleteTask, insertTask, updateTask } from "@/lib/actions/tasks";
 import { Context } from "@/components/provider/ContextProvider";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const StatusOption = [
   { label: "Not Started", value: "Not Started", color: "#adb5bd" },
@@ -198,6 +207,32 @@ const TaskForm = ({
             <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
             <p className="text-sm text-muted-foreground">{description}</p>
           </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button type="button" variant={"ghost"}>
+                <EllipsisVertical className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="mr-[30px]" align="center">
+              <DropdownMenuItem className="group/add cursor-pointer">
+                <div className="flex justify-start items-center gap-2 cursor-pointer group-hover/add:text-[#0079bf] ">
+                  <Plus className="w-4 h-4" /> Add Task to Trello
+                </div>
+              </DropdownMenuItem>
+
+              {initialData && (
+                <DropdownMenuItem className="group/delete cursor-pointer">
+                  <div
+                    onClick={() => setOpen(true)}
+                    className=" group-hover/delete:text-red-500 flex justify-start items-center gap-2 "
+                  >
+                    <Trash className="w-4 h-4" /> Delete
+                  </div>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {/* 
           {initialData && (
             <Button
               disabled={isLoading}
@@ -208,7 +243,7 @@ const TaskForm = ({
             >
               <Trash className="h-4 w-4" />
             </Button>
-          )}
+          )} */}
         </div>
         <Form {...form}>
           <form className="w-full space-y-2">

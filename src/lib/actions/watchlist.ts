@@ -119,11 +119,15 @@ export const createWatchlist = async ({
       const res: {
         watchlist: {
           id: string;
-          user_id: string;
           title: string;
-          createdAt: Date;
+          user_id: string;
+          created_at: string;
         };
-        keywords: Keyword[];
+        keywords: {
+          keyword: string;
+          keyword_id: string;
+          watchlist_id: string;
+        }[];
       }[] = await response.json();
 
       return res[0];

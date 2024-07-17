@@ -15,7 +15,6 @@ export const getCompany = async () => {
     const { data } = await supabase.auth.getSession();
     const access_token = data.session?.access_token;
     if (!access_token) redirect("/auth");
-    console.log(data.session?.user.id);
     const response = await fetch(
       `${SERVER_URL}/company_info/?user_id=${data.session?.user.id}`,
 
@@ -24,6 +23,7 @@ export const getCompany = async () => {
         headers: {
           Authorization: access_token,
         },
+        cache: "no-cache",
       }
     );
 
