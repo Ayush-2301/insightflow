@@ -45,12 +45,12 @@ const RecommendationTaskTable = dynamic(
 const ITEMS_PER_PAGE = 5;
 
 const Recommendedtask = ({ id }: { id: string }) => {
-  const { setRecommendedTask, recommendedTask } = useContext(Context);
+  // const { setRecommendedTask, recommendedTask } = useContext(Context);
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "none">("none");
-  // const [recommendedTask, setRecommendedTask] = useState<RecommendedTask[]>([]);
+  const [recommendedTask, setRecommendedTask] = useState<RecommendedTask[]>([]);
   const [loading, setLoading] = useState(true);
   // const [approveTaskLoading, setApproveTaskLoading] = useState(false);
   const supabase = createSupabaseBrowserClient();

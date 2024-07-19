@@ -18,53 +18,62 @@ import { Spinner } from "../Spinner";
 import { Context } from "../provider/ContextProvider";
 import { RecommendedTask } from "@/lib/types";
 
-const CellAction = ({ task }: { task: RecommendedTask }) => {
-  const { setRecommendedTask } = useContext(Context);
+const CellAction = ({
+  task,
+  approveTask,
+  rejectTask,
+  approveTaskLoading,
+}: {
+  task: RecommendedTask;
+  approveTask: (id: string) => void;
+  rejectTask: (id: string) => void;
+  approveTaskLoading: boolean;
+}) => {
   const router = useRouter();
   const { toast } = useToast();
-  const [approveTaskLoading, setApproveTaskLoading] = useState(false);
-  const approveTask = async (id: string) => {
-    setApproveTaskLoading(true);
-    const status = true;
-    const res = await updateRecommendedTask({ id, status });
-    console.log(res);
-    if ("error" in res) {
-      toast({
-        title: "Error approving task",
-        description: res.error,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Task approved successfully",
-      });
-      router.refresh();
-      setRecommendedTask((prev) =>
-        prev ? prev.filter((task) => task.task_id !== id) : []
-      );
-    }
-    setApproveTaskLoading(false);
-  };
+  // const [approveTaskLoading, setApproveTaskLoading] = useState(false);
+  // const approveTask = async (id: string) => {
+  //   setApproveTaskLoading(true);
+  //   const status = true;
+  //   const res = await updateRecommendedTask({ id, status });
+  //   console.log(res);
+  //   if ("error" in res) {
+  //     toast({
+  //       title: "Error approving task",
+  //       description: res.error,
+  //       variant: "destructive",
+  //     });
+  //   } else {
+  //     toast({
+  //       title: "Task approved successfully",
+  //     });
+  //     router.refresh();
+  //     setRecommendedTask((prev) =>
+  //       prev ? prev.filter((task) => task.task_id !== id) : []
+  //     );
+  //   }
+  //   setApproveTaskLoading(false);
+  // };
 
-  const rejectTask = async (id: string) => {
-    setApproveTaskLoading(true);
-    const status = false;
-    const res = await updateRecommendedTask({ id, status });
-    if ("error" in res) {
-      toast({
-        title: "Error rejecting task",
-        description: res.error,
-        variant: "destructive",
-      });
-    } else {
-      toast({ title: "Task rejected successfully" });
-      router.refresh();
-      setRecommendedTask((prev) =>
-        prev ? prev.filter((task) => task.task_id !== id) : []
-      );
-    }
-    setApproveTaskLoading(false);
-  };
+  // const rejectTask = async (id: string) => {
+  //   setApproveTaskLoading(true);
+  //   const status = false;
+  //   const res = await updateRecommendedTask({ id, status });
+  //   if ("error" in res) {
+  //     toast({
+  //       title: "Error rejecting task",
+  //       description: res.error,
+  //       variant: "destructive",
+  //     });
+  //   } else {
+  //     toast({ title: "Task rejected successfully" });
+  //     router.refresh();
+  //     setRecommendedTask((prev) =>
+  //       prev ? prev.filter((task) => task.task_id !== id) : []
+  //     );
+  //   }
+  //   setApproveTaskLoading(false);
+  // };
   if (approveTaskLoading) return <Spinner size={"default"} />;
   return (
     <DropdownMenu>

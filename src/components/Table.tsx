@@ -110,21 +110,25 @@ import { DataTable } from "./recommendedTask/data-table";
 import React, { useContext, useEffect, useState } from "react";
 import { GroupProp } from "@/app/(Dashboard)/watchlist/components/RecommendationTaskTable";
 import { Input } from "./ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "./ui/button";
-import { Context } from "./provider/ContextProvider";
 
-const Table = ({ group }: { group: GroupProp }) => {
-  const { recommendedTask } = useContext(Context);
+import { Button } from "./ui/button";
+
+import { updateRecommendedTask } from "@/lib/actions/recommended";
+import { useRouter } from "next/navigation";
+import { useToast } from "./ui/use-toast";
+
+const Table = ({
+  group,
+  recommendedTask,
+}: {
+  group: GroupProp;
+  recommendedTask: RecommendedTask[];
+}) => {
+  const router = useRouter();
+  const { toast } = useToast();
+
   const [searchTerm, setSearchTerm] = useState("");
+  const [approveTaskLoading, setApproveTaskLoading] = useState(false);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "reset">("reset");
   const [selectValue, setSelectValue] = useState<"asc" | "desc" | "reset">(
     "reset"
@@ -162,6 +166,48 @@ const Table = ({ group }: { group: GroupProp }) => {
     );
     setFilteredTasks(filtered);
   }, [sortOrder, searchTerm, recommendedTask]);
+  const approveTask = async (id: string) => {
+    setApproveTaskLoading(true);
+    const status = true;
+    const res = await updateRecommendedTask({ id, status });
+    console.log(res);
+    if ("error" in res) {
+      toast({
+        title: "Error approving task",
+        description: res.error,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Task approved successfully",
+      });
+      router.refresh();
+      setFilteredTasks((prev) =>
+        prev ? prev.filter((task) => task.task_id !== id) : []
+      );
+    }
+    setApproveTaskLoading(false);
+  };
+
+  const rejectTask = async (id: string) => {
+    setApproveTaskLoading(true);
+    const status = false;
+    const res = await updateRecommendedTask({ id, status });
+    if ("error" in res) {
+      toast({
+        title: "Error rejecting task",
+        description: res.error,
+        variant: "destructive",
+      });
+    } else {
+      toast({ title: "Task rejected successfully" });
+      router.refresh();
+      setFilteredTasks((prev) =>
+        prev ? prev.filter((task) => task.task_id !== id) : []
+      );
+    }
+    setApproveTaskLoading(false);
+  };
 
   return (
     <div>
@@ -185,7 +231,10 @@ const Table = ({ group }: { group: GroupProp }) => {
         </Select> */}
         <Button>Search</Button>
       </div>
-      <DataTable columns={columns} data={filteredTasks} />
+      <DataTable
+        columns={columns({ approveTask, rejectTask, approveTaskLoading })}
+        data={filteredTasks}
+      />
     </div>
   );
 };

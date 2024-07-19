@@ -128,7 +128,7 @@ const RecommendationTaskTable = ({
     return tabs.map((tab, index) => {
       return (
         <Panel key={index}>
-          <Table group={selectedGroup} />
+          <Table group={selectedGroup} recommendedTask={recommendedTask} />
         </Panel>
       );
     });

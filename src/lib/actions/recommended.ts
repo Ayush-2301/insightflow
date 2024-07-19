@@ -29,6 +29,7 @@ export const getRecommendedTask = async ({
         headers: {
           Authorization: access_token,
         },
+        cache: "no-cache",
       }
     );
 

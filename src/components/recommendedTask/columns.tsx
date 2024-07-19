@@ -6,7 +6,15 @@ import { ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CellAction from "./cell-action";
 
-export const columns: ColumnDef<RecommendedTask>[] = [
+export const columns = ({
+  approveTask,
+  rejectTask,
+  approveTaskLoading,
+}: {
+  approveTask: (id: string) => void;
+  rejectTask: (id: string) => void;
+  approveTaskLoading: boolean;
+}): ColumnDef<RecommendedTask>[] => [
   {
     accessorKey: "task",
     header: "Task",
@@ -69,7 +77,14 @@ export const columns: ColumnDef<RecommendedTask>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      return <CellAction task={row.original} />;
+      return (
+        <CellAction
+          task={row.original}
+          approveTaskLoading={approveTaskLoading}
+          approveTask={approveTask}
+          rejectTask={rejectTask}
+        />
+      );
     },
   },
 ];
