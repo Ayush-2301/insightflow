@@ -34,7 +34,6 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
       const res = await signUpWithEmailAndPassword(data);
       const user = await JSON.parse(res);
       reset();
-      console.log(user);
       if (user.data.user) {
         router.push("/");
         router.refresh();

@@ -6,6 +6,7 @@ import { CompanyForm } from "@/app/(Dashboard)/(home)/schema";
 import { revalidateTag } from "next/cache";
 import { getSession } from "./index";
 import { createSupabaseServerClient } from "../supabase/server";
+
 const SERVER_URL = process.env.SERVER_URL;
 
 export const getCompany = async () => {

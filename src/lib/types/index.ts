@@ -43,7 +43,7 @@ export interface RecommendedTask {
   domain: string;
   category: string;
   task: string;
-  created_at: null | true | false;
+  createdAt: Date;
   clarity: number;
 }
 

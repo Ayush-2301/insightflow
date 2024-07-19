@@ -31,11 +31,13 @@ export const getRecommendedTask = async ({
         },
       }
     );
+
     if (response.ok) {
       const res: {
         paginatedResult: RecommendedTask[];
         totalCount: string;
       } = await response.json();
+
       return res;
     }
   } catch (error) {
