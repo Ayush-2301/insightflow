@@ -39,7 +39,6 @@ const Watchlists = ({
             keywords: item.keywords,
             tasks: item.tasks,
           };
-          // return <WatchlistItem key={watchlist.id} data={watchlist} />;
           return (
             <WatchlistItem key={watchlist.id} data={watchlist}>
               <RecommendedServer id={watchlist.id} />

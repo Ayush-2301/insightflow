@@ -5,16 +5,14 @@ let { TabList, ActionButton, Tab, Panel } = themeStyled;
 
 TabList = styled(TabList)`
   background-color: transparent;
-  line-height: 1.2;
   border: 0;
 `;
 
 Tab = styled(Tab)`
-  padding: 5px 10px;
+  padding: 8px 10px;
   position: relative;
   font-size: 14px;
   border: 0;
-  width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
@@ -27,11 +25,13 @@ Tab = styled(Tab)`
     `
       : null;
   }}
+
   &:hover .tab-label_close-button {
     opacity: 1;
+    font-weight: bold;
   }
   & svg {
-    font-size: 20px;
+    font-size: 14px;
   }
   &:hover svg {
     color: #35185a;

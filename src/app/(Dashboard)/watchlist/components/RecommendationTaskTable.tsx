@@ -1,5 +1,4 @@
 "use client";
-import { RecommendedTask } from "@/lib/types";
 import React, { useCallback, useMemo, useState } from "react";
 import {
   Tabs,
@@ -11,7 +10,6 @@ import {
 } from "@react-tabtab-next/tabtab";
 import * as Style from "./tabTheme";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -42,72 +40,30 @@ export type GroupProp = {
   label: string;
   icon: LucideIcon;
 };
+
 const groups: GroupProp[] = [
-  {
-    value: "all",
-    label: "All",
-    icon: CircleCheck,
-  },
-  {
-    value: "domain",
-    label: "By Domain",
-    icon: Component,
-  },
-  {
-    value: "category",
-    label: "By Category",
-    icon: Shapes,
-  },
-  {
-    value: "clarity",
-    label: "By Clarity",
-    icon: Wand2,
-  },
-  {
-    value: "createdAt",
-    label: "By Created",
-    icon: Calendar,
-  },
+  { value: "all", label: "All", icon: CircleCheck },
+  { value: "domain", label: "By Domain", icon: Component },
+  { value: "category", label: "By Category", icon: Shapes },
+  { value: "clarity", label: "By Clarity", icon: Wand2 },
+  { value: "createdAt", label: "By Created", icon: Calendar },
 ];
 
-const makeData = (title: string, icon: LucideIcon, useTitleCounter = true) => {
-  return [
-    {
-      title: useTitleCounter ? `${title} ` : title,
-      icon,
-      content: (
-        <div>
-          <b>Content </b>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias
-            assumenda laudantium natus voluptatibus necessitatibus totam autem
-            dignissimos. Sequi ratione ea, esse magnam excepturi perferendis
-            commodi est sed voluptatum unde officia!
-          </p>
-        </div>
-      ),
-    },
-  ];
-};
-
-const RecommendationTaskTable = ({
-  recommendedTask,
-}: {
-  recommendedTask: RecommendedTask[];
-}) => {
+const RecommendationTaskTable = () => {
   const [open, setOpen] = useState(false);
-  const [selectedGroup, setSelectedGroup] = useState<GroupProp>({
-    value: "all",
-    label: "All",
-    icon: CircleCheck,
-  });
   const [activeTab, setActiveTab] = useState(0);
-  const [tabs, setTabs] = useState(makeData("All", CircleCheck, false));
+  const [tabs, setTabs] = useState([
+    {
+      title: "All",
+      icon: CircleCheck,
+      content: <Table group={groups[0]} />,
+    },
+  ]);
 
   const closableTabItems = useMemo(() => {
     return tabs.map((tab, index) => {
       const isAllTab = tab.title.trim() === "All";
-      const Icon = tab.icon;
+
       return (
         <Tab
           closable={
@@ -118,25 +74,21 @@ const RecommendationTaskTable = ({
           }
           key={index}
         >
-          {tab.title}
+          <div className="flex items-center justify-start">
+            <tab.icon className="mr-2 h-4 w-4" />
+            {tab.title}
+          </div>
         </Tab>
       );
     });
   }, [tabs]);
 
   const panelItems = useMemo(() => {
-    return tabs.map((tab, index) => {
-      return (
-        <Panel key={index}>
-          <Table group={selectedGroup} recommendedTask={recommendedTask} />
-        </Panel>
-      );
-    });
+    return tabs.map((tab, index) => <Panel key={index}>{tab.content}</Panel>);
   }, [tabs]);
 
   const handleOnTabSequenceChange = useCallback(
     ({ oldIndex, newIndex }: { oldIndex: number; newIndex: number }) => {
-      console.log({ oldIndex, newIndex });
       setTabs((tabs) => helpers.simpleSwitch(tabs, oldIndex, newIndex));
       setActiveTab(newIndex);
     },
@@ -144,57 +96,36 @@ const RecommendationTaskTable = ({
   );
 
   const handleOnTabChange = useCallback((i: number) => {
-    console.log("select tab", i);
     setActiveTab(i);
   }, []);
 
-  const handleTabClose = useCallback(
-    (index: number) => {
-      setTabs((prevTabs) => {
-        const newTabs = prevTabs.filter((_, idx) => idx !== index);
-        const allTabsCount = newTabs.filter(
-          (tab) => tab.title.trim() === "All"
-        ).length;
-        if (allTabsCount === 0) {
-          newTabs.push({
-            title: "All",
-            icon: CircleCheck,
-            content: (
-              <div>
-                <b>Content </b>
-                <p>Grouped by All</p>
-              </div>
-            ),
-          });
-        }
-        if (index === activeTab) {
-          setActiveTab((prev) => (prev > 0 ? prev - 1 : 0));
-        } else if (index < activeTab) {
-          setActiveTab((prev) => prev - 1);
-        }
-        return newTabs;
-      });
-    },
-    [activeTab]
-  );
+  const handleTabClose = useCallback((index: number) => {
+    setTabs((prevTabs) => {
+      const newTabs = prevTabs.filter((_, idx) => idx !== index);
+      if (!newTabs.find((tab) => tab.title === "All")) {
+        newTabs.push({
+          title: "All",
+          icon: CircleCheck,
+          content: <Table group={groups[0]} />,
+        });
+      }
+      setActiveTab((prev) =>
+        index === prev ? (prev > 0 ? prev - 1 : 0) : prev
+      );
+      return newTabs;
+    });
+  }, []);
 
   const handleAddTab = useCallback(
-    (status: GroupProp) => {
-      setTabs((prev) => {
-        const newTabs = [...prev];
-        const newItem = {
-          title: status.label,
-          icon: status.icon,
-          content: (
-            <div>
-              <b>Content </b>
-              <p>Grouped by {status.label}</p>
-            </div>
-          ),
-        };
-        newTabs.push(newItem);
-        return newTabs;
-      });
+    (group: GroupProp) => {
+      setTabs((prev) => [
+        ...prev,
+        {
+          title: group.label,
+          icon: group.icon,
+          content: <Table group={group} />,
+        },
+      ]);
       setActiveTab(tabs.length);
     },
     [tabs.length]
@@ -212,7 +143,7 @@ const RecommendationTaskTable = ({
         ExtraButton={
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="sm" className="">
+              <Button variant="ghost" size="sm">
                 <Plus className="w-4 h-4" />
               </Button>
             </PopoverTrigger>
@@ -224,28 +155,14 @@ const RecommendationTaskTable = ({
                   <CommandGroup>
                     {groups.map((group) => (
                       <CommandItem
-                        className="cursor-pointer"
                         key={group.value}
-                        value={group.value}
-                        onSelect={(value) => {
-                          const selected = groups.find(
-                            (s) => s.value === value
-                          );
-                          if (selected) {
-                            handleAddTab(selected);
-                          }
+                        onSelect={() => {
+                          handleAddTab(group);
                           setOpen(false);
                         }}
                       >
-                        <group.icon
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            group.value === selectedGroup?.value
-                              ? "opacity-100"
-                              : "opacity-40"
-                          )}
-                        />
-                        <span>{group.label}</span>
+                        <group.icon className="mr-2 h-4 w-4" />
+                        {group.label}
                       </CommandItem>
                     ))}
                   </CommandGroup>

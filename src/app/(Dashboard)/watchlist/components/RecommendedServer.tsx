@@ -1,5 +1,6 @@
 import { getRecommendedTask } from "@/lib/actions/recommended";
 import Recommendedtask from "./Recommendedtask";
+import RecommendedTaskProvider from "@/components/provider/RecommendedTaskProvider";
 
 const RecommendedServer = async ({ id }: { id: string }) => {
   let recommendedTask;
@@ -14,7 +15,9 @@ const RecommendedServer = async ({ id }: { id: string }) => {
     <div className="w-full mt-8">
       <h2 className="text-2xl font-bold mb-4">Recommended Tasks</h2>
       <div className="space-y-4 mb-4">
-        <Recommendedtask id={id} />
+        <RecommendedTaskProvider>
+          <Recommendedtask id={id} />
+        </RecommendedTaskProvider>
       </div>
     </div>
   );
