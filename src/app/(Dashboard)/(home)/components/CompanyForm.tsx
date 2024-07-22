@@ -1,5 +1,6 @@
 "use client";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import { useTour } from "@reactour/tour";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Company } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +22,39 @@ import { Icons } from "@/components/icons/icons";
 import { Textarea } from "@/components/ui/textarea";
 import { createCompany, updateCompany } from "@/lib/actions/company";
 import { Spinner } from "@/components/Spinner";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { Info } from "lucide-react";
+import { steps } from "@/lib/constant";
+import { cn } from "@/lib/utils";
+import { ToastAction } from "@/components/ui/toast";
+
+const InfoCard = ({
+  content,
+  className,
+}: {
+  content: string;
+  className?: string;
+}) => {
+  return (
+    <HoverCard>
+      <HoverCardTrigger>
+        <Info className={cn(`w-4 h-4 text-muted-foreground`, className)} />
+      </HoverCardTrigger>
+      <HoverCardContent
+        className={cn(
+          `w-80 text-sm font-normal text-muted-foreground`,
+          className
+        )}
+      >
+        {content}
+      </HoverCardContent>
+    </HoverCard>
+  );
+};
 
 type SocialMediaKey = keyof typeof social_media;
 const social_media = {
@@ -55,6 +89,7 @@ const CompanyForm = ({
   userID: string;
   setEdit?: Dispatch<SetStateAction<boolean>>;
 }) => {
+  const { setIsOpen } = useTour();
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -173,8 +208,26 @@ const CompanyForm = ({
     }
   };
 
+  useEffect(() => {
+    toast({
+      className: "flex-col gap-2",
+      duration: 20000,
+      title: "Need Assistance with the Form?",
+      description:
+        "If you need help filling out the company information form, click 'Start Guide' for a step-by-step walkthrough.",
+      action: (
+        <ToastAction
+          altText="Start Guide"
+          className="  bg-transparent border-none self-end"
+          onClick={() => setIsOpen(true)}
+        >
+          <Button type="button">Start Guide</Button>
+        </ToastAction>
+      ),
+    });
+  }, []);
   return (
-    <div className="rounded-lg p-6 border mt-4">
+    <div className="rounded-lg p-6 border mt-4 ">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -184,8 +237,14 @@ const CompanyForm = ({
             control={form.control}
             name="name"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-lg">Company Name</FormLabel>
+              <FormItem className="company-name group/company">
+                <FormLabel className="text-lg flex gap-2 items-center">
+                  Company Name
+                  <InfoCard
+                    className="invisible group-focus-within/company:visible"
+                    content={steps[0].content as string}
+                  />
+                </FormLabel>
                 <FormControl>
                   <Input
                     disabled={isLoading}
@@ -203,8 +262,14 @@ const CompanyForm = ({
             control={form.control}
             name="industry"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-lg">Industry</FormLabel>
+              <FormItem className="industry group/industry">
+                <FormLabel className="text-lg flex gap-2 items-center">
+                  Industry
+                  <InfoCard
+                    className="invisible group-focus-within/industry:visible"
+                    content={steps[1].content as string}
+                  />
+                </FormLabel>
                 <FormControl>
                   <Input
                     disabled={isLoading}
@@ -222,8 +287,14 @@ const CompanyForm = ({
             control={form.control}
             name="goal"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-lg">Goal</FormLabel>
+              <FormItem className="goal group/goal">
+                <FormLabel className="text-lg flex items-center gap-2">
+                  Goal{" "}
+                  <InfoCard
+                    className="invisible group-focus-within/goal:visible"
+                    content={steps[2].content as string}
+                  />
+                </FormLabel>
                 <FormControl>
                   <Input
                     disabled={isLoading}
@@ -241,8 +312,14 @@ const CompanyForm = ({
             control={form.control}
             name="website_url"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-lg">Website URL</FormLabel>
+              <FormItem className="website_url  group/website">
+                <FormLabel className="text-lg flex items-center gap-2">
+                  Website URL{" "}
+                  <InfoCard
+                    className="invisible group-focus-within/website:visible"
+                    content={steps[3].content as string}
+                  />
+                </FormLabel>
                 <FormControl>
                   <Input
                     disabled={isLoading}
@@ -256,8 +333,14 @@ const CompanyForm = ({
               </FormItem>
             )}
           />
-          <div className="flex flex-col space-y-3 w-full">
-            <Label className="text-lg">Competion URL</Label>
+          <div className="flex flex-col space-y-3 w-full competion_url group/competion">
+            <Label className="text-lg flex items-center gap-2">
+              Competion URL{" "}
+              <InfoCard
+                className="invisible group-focus-within/competion:visible"
+                content={steps[4].content as string}
+              />
+            </Label>
             {fields.map((item, index) => (
               <FormField
                 key={item.id}
@@ -299,8 +382,14 @@ const CompanyForm = ({
             </Button>
           </div>
 
-          <div>
-            <Label className="text-lg">Social Media</Label>
+          <div className="social-media group/social">
+            <Label className="text-lg flex items-center gap-2">
+              Social Media{" "}
+              <InfoCard
+                className="invisible group-focus-within/social:visible"
+                content={steps[5].content as string}
+              />
+            </Label>
             <div className="grid grid-cols-2 gap-2 mt-4">
               {Object.keys(social_media).map((key) => {
                 const socialKey = key as SocialMediaKey;
@@ -336,8 +425,14 @@ const CompanyForm = ({
             control={form.control}
             name="description"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-lg">Description</FormLabel>
+              <FormItem className="description group/description">
+                <FormLabel className="text-lg flex items-center gap-2">
+                  Description{" "}
+                  <InfoCard
+                    className="invisible group-focus-within/description:visible"
+                    content={steps[6].content as string}
+                  />
+                </FormLabel>
                 <FormControl>
                   <Textarea
                     disabled={isLoading}
