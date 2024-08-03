@@ -16,7 +16,7 @@ export const steps: StepType[] = [
   {
     selector: ".goal",
     content:
-      "Describe the primary services you offer or your main business goal in one line. This information is used to generate relevant recommendations.",
+      "Select the primary services you offer or your main business goal. This information is used to generate relevant recommendations.",
   },
   {
     selector: ".website_url",

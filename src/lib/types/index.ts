@@ -94,3 +94,7 @@ export interface insertWatchlist {
   };
   keywords: Keyword[];
 }
+
+export interface Goal {
+  goal: string;
+}

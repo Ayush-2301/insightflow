@@ -14,7 +14,7 @@ export const companyFormSchema = z.object({
   description: z.string().max(500, "Word limit is 500 characters").optional(),
   website_url: z.string().url(),
   industry: z.string().min(1, "Please enter your industry type"),
-  goal: z.string().min(1, "Please enter your goal"),
+  goal: z.string().min(1, "Please select a goal"),
   competion_urls: z
     .array(
       z.object({

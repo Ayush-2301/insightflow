@@ -22,7 +22,7 @@ const DetailsPreview = ({ initialData }: { initialData: Company }) => {
     }
   );
   return (
-    <div className="mt-6 flex flex-col items-start min-h-full">
+    <div className="mt-6 flex flex-col space-y-1 items-start">
       <a
         href={initialData.website_url}
         target="_blank"
@@ -31,10 +31,22 @@ const DetailsPreview = ({ initialData }: { initialData: Company }) => {
         <h1 className="text-xl font-semibold">{initialData.name}</h1>
         <Briefcase className="w-4 h-4" />
       </a>
-      <p className="text-muted-foreground text-base">
+      <div className="flex space-x-2 items-center justify-center ">
+        <h2 className="text-lg">Industry: </h2>
+        <p className="text-muted-foreground text-bas mt-[2px]">
+          {initialData.industry}
+        </p>
+      </div>
+      <div className="flex space-x-2 items-center justify-center ">
+        <h2 className="text-lg">Goal: </h2>
+        <p className="text-muted-foreground text-bas mt-[2px]">
+          {initialData.goal}
+        </p>
+      </div>
+      <p className="text-muted-foreground text-base mb-3">
         {initialData.description}
       </p>
-      <div className="flex  items-center space-x-4 justify-end mt-10">
+      <div className="flex  items-center space-x-4 justify-end mt-6">
         {socialMediaArray.map(
           ({ icon, url }, index) =>
             url !== "" && (

@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "../supabase/server";
-import { Keyword } from "../types";
+import { Goal, Keyword } from "../types";
 import { cookies } from "next/headers";
 import { Session } from "@supabase/supabase-js";
 import { Buffer } from "buffer";
@@ -54,4 +54,23 @@ export const getSession = async () => {
   const access_token = session.access_token;
   const user = session.user;
   return { access_token, user };
+};
+
+export const getGoals = async () => {
+  const supabase = createSupabaseServerClient();
+  const { data } = await supabase.auth.getSession();
+  const access_token = data.session?.access_token;
+  if (!access_token) redirect("/auth");
+  const response = await fetch(`${SERVER_URL}/goals`, {
+    method: "GET",
+    headers: {
+      Authorization: access_token,
+    },
+    next: {
+      revalidate: 3600,
+      tags: ["goals"],
+    },
+  });
+  const goals: Goal[] = await response.json();
+  return goals;
 };

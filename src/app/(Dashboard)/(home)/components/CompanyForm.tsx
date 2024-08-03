@@ -2,7 +2,7 @@
 import { useTour } from "@reactour/tour";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Company } from "@/lib/types";
+import { Company, Goal } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { companyFormSchema, type CompanyForm } from "../schema";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { X } from "lucide-react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
 import { Icons } from "@/components/icons/icons";
 import { Textarea } from "@/components/ui/textarea";
 import { createCompany, updateCompany } from "@/lib/actions/company";
@@ -31,6 +31,19 @@ import { Info } from "lucide-react";
 import { steps } from "@/lib/constant";
 import { cn } from "@/lib/utils";
 import { ToastAction } from "@/components/ui/toast";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 const InfoCard = ({
   content,
@@ -84,10 +97,12 @@ const CompanyForm = ({
   initialData,
   userID,
   setEdit,
+  goals,
 }: {
   initialData?: Company | undefined;
   userID: string;
   setEdit?: Dispatch<SetStateAction<boolean>>;
+  goals: Goal[] | undefined;
 }) => {
   const { setIsOpen } = useTour();
   const { toast } = useToast();
@@ -295,13 +310,63 @@ const CompanyForm = ({
                     content={steps[2].content as string}
                   />
                 </FormLabel>
-                <FormControl>
+                <Popover>
+                  <PopoverTrigger asChild disabled={isLoading}>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          " justify-between",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value
+                          ? goals?.find((goal) => goal.goal === field.value)
+                              ?.goal
+                          : "Select Goal"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className=" p-0">
+                    <Command>
+                      <CommandInput placeholder="Search Goal..." />
+                      <CommandList>
+                        <CommandEmpty>No goal found.</CommandEmpty>
+                        <CommandGroup>
+                          {goals &&
+                            goals.map((goal) => (
+                              <CommandItem
+                                value={goal.goal}
+                                key={goal.goal}
+                                onSelect={() => {
+                                  form.setValue("goal", goal.goal);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    goal.goal === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {goal.goal}
+                              </CommandItem>
+                            ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                {/* <FormControl>
                   <Input
                     disabled={isLoading}
                     {...field}
                     placeholder="Specify your goal (e.g., Expand customer base via partnerships)"
                   />
-                </FormControl>
+                </FormControl> */}
                 <p className=" text-red-500">
                   {error.name && error.name.message}
                 </p>

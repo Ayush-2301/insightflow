@@ -4,11 +4,13 @@ import Company from "./Company";
 import { Company as CompanyType } from "@/lib/types";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getGoals } from "@/lib/actions";
 
 const CompanyServer = async () => {
   const supabase = createSupabaseServerClient();
   const { data } = await supabase.auth.getUser();
   const companyData = await getCompany();
+  const goals = await getGoals();
   const isValidCompany = (company: any): company is CompanyType => {
     return company && !("error" in company) && !("message" in company);
   };
@@ -20,7 +22,9 @@ const CompanyServer = async () => {
         <h2 className=" text-3xl  font-semibold tracking-tight">
           Hello👋 {data.user?.user_metadata.full_name}
         </h2>
-        {data.user && <Company userID={data.user?.id} company={company} />}
+        {data.user && (
+          <Company userID={data.user?.id} company={company} goals={goals} />
+        )}
       </div>
     </Suspense>
   );

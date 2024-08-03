@@ -1,7 +1,7 @@
 "use client";
 import { StepType, TourProvider } from "@reactour/tour";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
-import { type Company } from "@/lib/types";
+import { Goal, type Company } from "@/lib/types";
 import CompanyForm from "./CompanyForm";
 import React, { useState } from "react";
 import DetailsPreview from "./DetailsPreview";
@@ -13,9 +13,11 @@ import { steps } from "@/lib/constant";
 const Company = ({
   userID,
   company,
+  goals,
 }: {
   userID: string;
   company: Company | undefined;
+  goals: Goal[] | undefined;
 }) => {
   const [edit, setEdit] = useState(false);
   const disableBody = (target: HTMLElement | Element | null) => {
@@ -55,7 +57,7 @@ const Company = ({
             <p className=" text-muted-foreground text-lg">
               Tell us about yourself
             </p>
-            <CompanyForm initialData={company} userID={userID} />
+            <CompanyForm initialData={company} userID={userID} goals={goals} />
           </>
         )}
         {company && (
@@ -94,6 +96,7 @@ const Company = ({
                   setEdit={setEdit}
                   initialData={company}
                   userID={userID}
+                  goals={goals}
                 />
               </>
             )}
@@ -109,9 +112,13 @@ export default Company;
 function PreviewSkeleton() {
   return (
     <div className="space-y-2">
-      <div className="flex  items-center  space-x-2">
-        <Skeleton className="h-[30px] w-[200px]" />
-        <Skeleton className="h-[30px] w-[30px] rounded-full" />
+      <div className="flex  flex-col  justify-start items-start space-y-2">
+        <div className="flex  space-x-2">
+          <Skeleton className="h-[30px] w-[200px]" />
+          <Skeleton className="h-[30px] w-[30px] rounded-full" />
+        </div>
+        <Skeleton className="h-[30px] w-[250px]" />
+        <Skeleton className="h-[30px] w-[300px]" />
       </div>
       <Skeleton className="h-[100px] w-full rounded-xl" />
     </div>
