@@ -82,7 +82,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
               )}
             </div>
             <div className="flex flex-col space-y-2">
-              <Label htmlFor="password">Email</Label>
+              <Label htmlFor="password">Password</Label>
               <Input
                 {...register("password", { required: true })}
                 id="password"
