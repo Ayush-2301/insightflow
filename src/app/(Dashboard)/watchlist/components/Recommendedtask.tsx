@@ -1,6 +1,6 @@
 "use client";
 import React, { useContext, useEffect, useState } from "react";
-import { RecommendedTask } from "@/lib/types";
+import { RecommendedTask, StaticTasks } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { WatchlistsSkeleton } from "./Watchlists";
@@ -14,54 +14,60 @@ const RecommendationTaskTable = dynamic(
   { ssr: false }
 );
 
-const Recommendedtask = ({ id }: { id: string }) => {
-  const { recommendedTask, setRecommendedTask } = useContext(
-    RecommendedTaskContext
-  );
-  console.log(recommendedTask);
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const supabase = createSupabaseBrowserClient();
+const Recommendedtask = ({
+  id,
+  staticTasks,
+}: {
+  id: string;
+  staticTasks: StaticTasks[] | undefined;
+}) => {
+  const { setStaticTasks } = useContext(RecommendedTaskContext);
   useEffect(() => {
-    async function getTasks() {
-      setLoading(true);
-      const tasks = await getRecommendedTask({
-        id: id,
-        page: "1",
-        pagesize: "10",
-      });
-      if (tasks?.paginatedResult && tasks?.paginatedResult.length >= 1) {
-        setRecommendedTask(tasks.paginatedResult);
-        setLoading(false);
-      } else {
-        setLoading(true);
-      }
-    }
-    getTasks();
-  }, []);
+    if (staticTasks) setStaticTasks(staticTasks);
+  }, [setStaticTasks, staticTasks]);
+  // const router = useRouter();
+  // const [loading, setLoading] = useState(true);
+  // const supabase = createSupabaseBrowserClient();
+  // useEffect(() => {
+  //   async function getTasks() {
+  //     setLoading(true);
+  //     const tasks = await getRecommendedTask({
+  //       id: id,
+  //       page: "1",
+  //       pagesize: "10",
+  //     });
+  //     if (tasks?.paginatedResult && tasks?.paginatedResult.length >= 1) {
+  //       setRecommendedTask(tasks.paginatedResult);
+  //       setLoading(false);
+  //     } else {
+  //       setLoading(true);
+  //     }
+  //   }
+  //   getTasks();
+  // }, []);
 
-  useEffect(() => {
-    const channel = supabase
-      .channel("recommendedTask")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "recommended_tasks",
-        },
-        (payload) => {
-          setLoading(false);
-          const newTask = payload.new as RecommendedTask;
-          setRecommendedTask((prev) => (prev ? [newTask, ...prev] : [newTask]));
-        }
-      )
-      .subscribe();
+  // useEffect(() => {
+  //   const channel = supabase
+  //     .channel("recommendedTask")
+  //     .on(
+  //       "postgres_changes",
+  //       {
+  //         event: "INSERT",
+  //         schema: "public",
+  //         table: "recommended_tasks",
+  //       },
+  //       (payload) => {
+  //         setLoading(false);
+  //         const newTask = payload.new as RecommendedTask;
+  //         setRecommendedTask((prev) => (prev ? [newTask, ...prev] : [newTask]));
+  //       }
+  //     )
+  //     .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [supabase, router]);
+  //   return () => {
+  //     supabase.removeChannel(channel);
+  //   };
+  // }, [supabase, router]);
 
   // const highlightText = (text: string, highlight: string) => {
   //   if (!highlight.trim()) {
@@ -86,13 +92,7 @@ const Recommendedtask = ({ id }: { id: string }) => {
   return (
     <div className="flex flex-col gap-4 ">
       <div className="h-full flex flex-col gap-2">
-        {loading ? (
-          <WatchlistsSkeleton />
-        ) : (
-          <div>
-            <RecommendationTaskTable />
-          </div>
-        )}
+        <RecommendationTaskTable />
       </div>
     </div>
   );

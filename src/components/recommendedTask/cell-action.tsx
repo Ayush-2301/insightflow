@@ -11,7 +11,7 @@ import {
 import { Check, MoreHorizontal, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { Spinner } from "../Spinner";
-import { RecommendedTask } from "@/lib/types";
+import { RecommendedTask, StaticTasks } from "@/lib/types";
 
 const CellAction = ({
   task,
@@ -19,7 +19,7 @@ const CellAction = ({
   rejectTask,
   approveTaskLoading,
 }: {
-  task: RecommendedTask;
+  task: StaticTasks;
   approveTask: (id: string) => void;
   rejectTask: (id: string) => void;
   approveTaskLoading: boolean;
@@ -38,7 +38,7 @@ const CellAction = ({
         <DropdownMenuSeparator />
         <DropdownMenuItem className="group/approve cursor-pointer">
           <div
-            onClick={() => approveTask(task.task_id)}
+            onClick={() => approveTask(task.id)}
             className="flex justify-start items-center gap-1 group-hover/approve:text-teal-600"
           >
             <Check className="w-4 h-4" /> Approve
@@ -46,7 +46,7 @@ const CellAction = ({
         </DropdownMenuItem>
         <DropdownMenuItem className="group/reject cursor-pointer">
           <div
-            onClick={() => rejectTask(task.task_id)}
+            onClick={() => rejectTask(task.id)}
             className="flex justify-start items-center gap-1 group-hover/reject:text-red-500"
           >
             <X className="w-4 h-4" /> Reject

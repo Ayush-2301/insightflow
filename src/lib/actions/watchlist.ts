@@ -109,6 +109,7 @@ export const createWatchlist = async ({
       },
       body: JSON.stringify(newData),
     });
+    console.log(newData);
     if (!response.ok) {
       const error: {
         error: string;
@@ -121,7 +122,7 @@ export const createWatchlist = async ({
           id: string;
           title: string;
           user_id: string;
-          created_at: string;
+          created_at: Date;
         };
         keywords: {
           keyword: string;

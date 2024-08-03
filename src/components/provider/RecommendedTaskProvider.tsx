@@ -1,6 +1,6 @@
 "use client";
 
-import { RecommendedTask } from "@/lib/types";
+import { RecommendedTask, StaticTasks } from "@/lib/types";
 import {
   createContext,
   Dispatch,
@@ -11,11 +11,15 @@ import {
 
 interface ContextProps {
   recommendedTask: RecommendedTask[];
+  staticTasks: StaticTasks[];
   setRecommendedTask: Dispatch<SetStateAction<RecommendedTask[]>>;
+  setStaticTasks: Dispatch<SetStateAction<StaticTasks[]>>;
 }
 
 const defaultValues: ContextProps = {
   recommendedTask: [],
+  staticTasks: [],
+  setStaticTasks: () => {},
   setRecommendedTask: () => {},
 };
 
@@ -28,10 +32,16 @@ export default function RecommendedTaskProvider({
   children: ReactNode;
 }) {
   const [recommendedTask, setRecommendedTask] = useState<RecommendedTask[]>([]);
+  const [staticTasks, setStaticTasks] = useState<StaticTasks[]>([]);
 
   return (
     <RecommendedTaskContext.Provider
-      value={{ recommendedTask, setRecommendedTask }}
+      value={{
+        recommendedTask,
+        setRecommendedTask,
+        setStaticTasks,
+        staticTasks,
+      }}
     >
       {children}
     </RecommendedTaskContext.Provider>

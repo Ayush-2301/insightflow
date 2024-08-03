@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { getSession } from ".";
-import { RecommendedTask } from "../types";
+import { RecommendedTask, StaticTasks } from "../types";
 import { createSupabaseServerClient } from "../supabase/server";
 import { revalidateTag } from "next/cache";
 
@@ -80,5 +80,42 @@ export const updateRecommendedTask = async ({
     return res[0];
   } catch (error) {
     throw new Error("Error updating recommendation status");
+  }
+};
+
+export const getStaticTask = async ({
+  id,
+  page,
+  pagesize,
+}: {
+  id: string;
+  page?: string;
+  pagesize?: string;
+}) => {
+  try {
+    const supabase = createSupabaseServerClient();
+    const { data } = await supabase.auth.getSession();
+    const access_token = data.session?.access_token;
+    if (!access_token) redirect("/auth");
+    const response = await fetch(
+      `${SERVER_URL}/custom_tasks/?watchlist_id=${id}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: access_token,
+        },
+        cache: "no-cache",
+      }
+    );
+
+    if (response.ok) {
+      const res: {
+        paginatedResult: StaticTasks[];
+        totalCount: string;
+      } = await response.json();
+      return res;
+    }
+  } catch (error) {
+    throw new Error("Error fetching static tasks");
   }
 };

@@ -47,6 +47,18 @@ export interface RecommendedTask {
   clarity: number;
 }
 
+export interface StaticTasks {
+  id: string;
+  created_at: Date;
+  user_id: string;
+  watchlist_id: string;
+  domain: string;
+  goal: string;
+  category: string;
+  task: string;
+  approve: null;
+}
+
 export interface Keyword {
   id: string;
   keyword: string;

@@ -1,5 +1,5 @@
 "use client";
-import { RecommendedTask } from "@/lib/types";
+import { RecommendedTask, StaticTasks } from "@/lib/types";
 import { columns } from "@/components/recommendedTask/columns";
 import { DataTable } from "./recommendedTask/data-table";
 import React, { useContext, useState } from "react";
@@ -29,7 +29,7 @@ const GroupedTask = ({
 }: {
   groupInfo: GroupProp;
   group: string;
-  tasks: RecommendedTask[];
+  tasks: StaticTasks[];
   approveTask: (id: string) => void;
   rejectTask: (id: string) => void;
   approveTaskLoading: boolean;
@@ -52,7 +52,7 @@ const GroupedTask = ({
               <Icon className="mr-1 h-4 w-4" />
               {groupInfo.value === "clarity"
                 ? `Clarity: ${group}%`
-                : groupInfo.value === "createdAt"
+                : groupInfo.value === "created_at"
                 ? `Created At: ${new Date(group).toDateString()}`
                 : group}
               <ChevronDown
@@ -74,9 +74,7 @@ const GroupedTask = ({
 };
 
 const Table = ({ group }: { group: GroupProp }) => {
-  const { recommendedTask, setRecommendedTask } = useContext(
-    RecommendedTaskContext
-  );
+  const { setStaticTasks, staticTasks } = useContext(RecommendedTaskContext);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -87,22 +85,22 @@ const Table = ({ group }: { group: GroupProp }) => {
     setSearchTerm(event.target.value);
   };
 
-  const filteredTasks = recommendedTask.filter((task) =>
+  const filteredTasks = staticTasks.filter((task) =>
     task.task.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const groupedTasks =
     group.value !== "all"
       ? filteredTasks.reduce((groups, task) => {
-          const key = task[group.value as keyof RecommendedTask] as string;
+          const key = task[group.value as keyof StaticTasks] as string;
           if (!groups[key]) groups[key] = [];
           groups[key].push(task);
           return groups;
-        }, {} as { [key: string]: RecommendedTask[] })
+        }, {} as { [key: string]: StaticTasks[] })
       : {};
 
   const updateTasksAfterAction = (id: string) => {
-    setRecommendedTask((prev) => prev.filter((task) => task.task_id !== id));
+    setStaticTasks((prev) => prev.filter((task) => task.id !== id));
     router.refresh();
   };
 

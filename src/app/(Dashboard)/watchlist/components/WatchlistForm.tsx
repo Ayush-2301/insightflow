@@ -101,7 +101,6 @@ const WatchlistForm = ({
   async function create({ newWatchList }: { newWatchList: WatchlistForm }) {
     setIsLoading(true);
     const res = await createWatchlist({ newWatchList });
-    console.log(res);
     setIsLoading(false);
     if ("error" in res) {
       toast({

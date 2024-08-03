@@ -45,8 +45,8 @@ const groups: GroupProp[] = [
   { value: "all", label: "All", icon: CircleCheck },
   { value: "domain", label: "By Domain", icon: Component },
   { value: "category", label: "By Category", icon: Shapes },
-  { value: "clarity", label: "By Clarity", icon: Wand2 },
-  { value: "createdAt", label: "By Created", icon: Calendar },
+  // { value: "clarity", label: "By Clarity", icon: Wand2 },
+  { value: "created_at", label: "By Created", icon: Calendar },
 ];
 
 const RecommendationTaskTable = () => {
