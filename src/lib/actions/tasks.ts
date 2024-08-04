@@ -23,6 +23,10 @@ export const getAllTasks = async () => {
         headers: {
           Authorization: access_token,
         },
+        next: {
+          revalidate: 3600,
+          tags: ["tasks"],
+        },
       }
     );
     if (!response.ok) {

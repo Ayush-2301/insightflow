@@ -58,25 +58,24 @@ export const updateRecommendedTask = async ({
     const { data } = await supabase.auth.getSession();
     const access_token = data.session?.access_token;
     if (!access_token) redirect("/auth");
-    const response = await fetch(
-      `${SERVER_URL}/recommendationTasks/?task_id=${id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: access_token,
-        },
-        body: JSON.stringify({ status }),
-      }
-    );
+    const response = await fetch(`${SERVER_URL}/custom_tasks?task_id=${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: access_token,
+      },
+      body: JSON.stringify({ status }),
+    });
     if (!response.ok) {
       const error: {
         error: string;
       } = await response.json();
+
       return error;
     }
     const res: RecommendedTask[] = await response.json();
     revalidateTag("tasks");
+    revalidateTag("staticTasks");
     return res[0];
   } catch (error) {
     throw new Error("Error updating recommendation status");
@@ -104,7 +103,10 @@ export const getStaticTask = async ({
         headers: {
           Authorization: access_token,
         },
-        cache: "no-cache",
+        next: {
+          revalidate: 3600,
+          tags: ["staticTasks"],
+        },
       }
     );
 
