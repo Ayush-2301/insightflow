@@ -43,6 +43,15 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
     }
   };
 
+  useEffect(() => {
+    setSuggestions((prev) =>
+      prev.filter(
+        (keyword: Keyword) =>
+          !selectedKeywords.some((selected) => selected.id === keyword.id)
+      )
+    );
+  }, [selectedKeywords, setSuggestions]);
+
   const debouncedFetchKeywords = useCallback(
     debounce((value: string) => {
       fetchKeywords(value);
@@ -63,8 +72,8 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
     ) {
       onSelect(keyword);
     }
-    setSuggestions([]);
     setQuery("");
+    setSuggestions([]);
   };
 
   const handleAddCustomKeyword = () => {
@@ -98,6 +107,14 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
     setShowMore((prev) => !prev);
   };
 
+  const filteredSuggestions =
+    suggestions.length > 0
+      ? suggestions.filter(
+          (keyword: Keyword) =>
+            !selectedKeywords.some((selected) => selected.id === keyword.id)
+        )
+      : [];
+
   const displayedKeywords = showMore
     ? suggestedKeywords
     : suggestedKeywords?.slice(0, 10);
@@ -125,12 +142,11 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
       {fetchingKeywords && (
         <div className="absolute left-0 right-0 bg-white border mt-1 z-10 max-h-60 overflow-y-auto flex justify-center items-center py-4">
           <Spinner size={"lg"} />
-          {/* Replace Spinner with your loading component */}
         </div>
       )}
-      {suggestions.length > 0 && !fetchingKeywords && (
+      {filteredSuggestions.length > 0 && !fetchingKeywords && (
         <ul className="absolute left-0 right-0 bg-white border mt-1 z-10 max-h-60 overflow-y-auto">
-          {suggestions.map((suggestion) => (
+          {filteredSuggestions.map((suggestion) => (
             <li
               key={suggestion.id}
               onClick={() => handleSelect(suggestion)}
@@ -141,7 +157,7 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
           ))}
         </ul>
       )}
-      {!fetchingKeywords && query && suggestions.length === 0 && (
+      {!fetchingKeywords && query && filteredSuggestions.length === 0 && (
         <Button
           type="button"
           disabled={isLoading}
@@ -179,7 +195,7 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
               disabled={isLoading}
               onClick={toggleShowMore}
               variant={"outline"}
-              className="mt-3 text-blue-500 hover:underline focus:outline-none "
+              className="mt-3 text-blue-500 hover:underline focus:outline-none"
             >
               {showMore ? "View Less" : "View More"}
             </Button>
