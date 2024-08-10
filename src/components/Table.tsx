@@ -101,7 +101,6 @@ const Table = ({ group }: { group: GroupProp }) => {
 
   const updateTasksAfterAction = (id: string) => {
     setStaticTasks((prev) => prev.filter((task) => task.id !== id));
-    router.refresh();
   };
 
   const approveTask = async (id: string) => {

@@ -1,5 +1,5 @@
 "use client";
-import { Calendar } from "lucide-react";
+import { Calendar, ChevronRightIcon, Triangle } from "lucide-react";
 import { Task } from "@/lib/types";
 import { useContext, useEffect, useState } from "react";
 import { Context } from "@/components/provider/ContextProvider";
@@ -35,6 +35,57 @@ const TaskItem = ({ data }: { data: Task }) => {
     );
     return priorityObj ? priorityObj.color : "bg-[#55a630]";
   };
+
+  function formatContent(content: string): JSX.Element {
+    if (content.includes("<br>")) {
+      const items = content
+        .replaceAll("-", "")
+        .split("<br>")
+        .map((item) => item.trim())
+        .filter((item) => item);
+
+      return (
+        <ul>
+          {items.map((item, index) => (
+            <li key={index} className="list-disc list-inside">
+              {item}
+            </li>
+          ))}
+        </ul>
+      );
+    } else if (content.includes("•")) {
+      const items = content
+        .replaceAll("-", "")
+        .split("•")
+        .map((item) => item.trim())
+        .filter((item) => item);
+
+      return (
+        <ul>
+          {items.map((item, index) => (
+            <li key={index} className="list-disc list-inside">
+              {item}
+            </li>
+          ))}
+        </ul>
+      );
+    } else if (content.includes("- ")) {
+      let idx = 0;
+      idx = content.indexOf("- ");
+
+      const items = content.slice(idx + 1).split("- ");
+      return (
+        <ul>
+          {items.map((item, index) => (
+            <li key={index} className="list-disc list-inside">
+              {item}
+            </li>
+          ))}
+        </ul>
+      );
+    } else return <>{content}</>;
+  }
+
   return (
     <div
       onClick={handleRouting}
@@ -42,7 +93,11 @@ const TaskItem = ({ data }: { data: Task }) => {
     >
       <div className=" flex flex-col space-y-1 max-w-[70%]">
         <h1 className="text-xl font-semibold">{data.title}</h1>
-        <p className="text-gray-600">{data.description}</p>
+        <div className="text-gray-600">{formatContent(data.description)}</div>
+        {/* <p
+          className="text-gray-600"
+          dangerouslySetInnerHTML={{ __html: data.description }}
+        /> */}
         <div className="flex items-center gap-2 text-gray-400">
           <Calendar className="w-4 h-4" />
           <p>Due Date: {new Date(data.deadline).toDateString()}</p>

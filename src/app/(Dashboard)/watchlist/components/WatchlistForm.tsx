@@ -54,10 +54,6 @@ const WatchlistForm = ({
         keywords: [],
         createdAt: new Date(),
       };
-
-  const [watchlistTasks, setWatchlistTasks] = useState<Task[] | undefined>(
-    initialData ? initialData.tasks : []
-  );
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [suggestedKeywords, setSuggestedKeywords] = useState<

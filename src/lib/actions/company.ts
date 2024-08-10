@@ -11,20 +11,20 @@ const SERVER_URL = process.env.SERVER_URL;
 
 export const getCompany = async () => {
   try {
-    // const { access_token, user } = await getSession();
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const access_token = data.session?.access_token;
+    const { access_token, user_id } = await getSession();
     if (!access_token) redirect("/auth");
     const response = await fetch(
-      `${SERVER_URL}/company_info/?user_id=${data.session?.user.id}`,
+      `${SERVER_URL}/company_info/?user_id=${user_id}`,
 
       {
         method: "GET",
         headers: {
           Authorization: access_token,
         },
-        cache: "no-cache",
+        next: {
+          revalidate: 3600,
+          tags: ["company_info"],
+        },
       }
     );
 
@@ -49,10 +49,7 @@ export const createCompany = async ({
   newCompany: CompanyForm;
 }) => {
   try {
-    // const { access_token } = await getSession();
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const access_token = data.session?.access_token;
+    const { access_token } = await getSession();
     if (!access_token) redirect("/auth");
     const response = await fetch(`${SERVER_URL}/company_info`, {
       method: "POST",
@@ -85,10 +82,8 @@ export const updateCompany = async ({
   id: string;
 }) => {
   try {
-    // const { access_token } = await getSession();
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const access_token = data.session?.access_token;
+    const { access_token } = await getSession();
+
     if (!access_token) redirect("/auth");
     const formData = { id, ...newCompany };
 

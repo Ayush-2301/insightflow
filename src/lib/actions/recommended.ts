@@ -18,9 +18,7 @@ export const getRecommendedTask = async ({
   pagesize: string;
 }) => {
   try {
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const access_token = data.session?.access_token;
+    const { access_token } = await getSession();
     if (!access_token) redirect("/auth");
     const response = await fetch(
       `${SERVER_URL}/recommendationTasks/?watchlist_id=${id}`,
@@ -54,9 +52,7 @@ export const updateRecommendedTask = async ({
   status: boolean;
 }) => {
   try {
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const access_token = data.session?.access_token;
+    const { access_token } = await getSession();
     if (!access_token) redirect("/auth");
     const response = await fetch(`${SERVER_URL}/custom_tasks?task_id=${id}`, {
       method: "PUT",
@@ -92,9 +88,7 @@ export const getStaticTask = async ({
   pagesize?: string;
 }) => {
   try {
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const access_token = data.session?.access_token;
+    const { access_token } = await getSession();
     if (!access_token) redirect("/auth");
     const response = await fetch(
       `${SERVER_URL}/custom_tasks/?watchlist_id=${id}`,

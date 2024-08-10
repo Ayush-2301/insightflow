@@ -1,7 +1,13 @@
 "use client";
 import { RecommendedTask, StaticTasks } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-react";
+import {
+  ArrowDownWideNarrow,
+  ArrowUpNarrowWide,
+  ChevronRightIcon,
+  Square,
+  Triangle,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import CellAction from "./cell-action";
@@ -19,12 +25,38 @@ export const columns = ({
     accessorKey: "task",
     header: "Task",
     cell: ({ row }) => {
-      return (
-        <p
-          className="max-w-[1100px]"
-          dangerouslySetInnerHTML={{ __html: row.getValue("task") }}
-        />
-      );
+      function formatContent(content: string): JSX.Element {
+        if (content.includes("<br>")) {
+          const items = content
+            .replaceAll("-", "")
+            .split("<br>")
+            .map((item) => item.trim());
+
+          return (
+            <ul className="px-4">
+              {items.map((item, index) => (
+                <li key={index} className="list-disc">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          );
+        } else if (content.includes("- ")) {
+          const idx = content.indexOf("- ");
+          const items = content.slice(idx + 1).split("- ");
+
+          return (
+            <ul className="px-4">
+              {items.map((item, index) => (
+                <li key={index} className="list-disc">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          );
+        } else return <>{content}</>;
+      }
+      return <>{formatContent(row.getValue("task"))}</>;
     },
   },
   {

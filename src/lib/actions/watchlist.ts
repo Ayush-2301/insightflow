@@ -15,13 +15,11 @@ const SERVER_URL = process.env.SERVER_URL;
 
 export const getAllWatchlist = async () => {
   try {
-    // const { access_token, user } = await getSession();
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const access_token = data.session?.access_token;
+    const { access_token, user_id } = await getSession();
+
     if (!access_token) redirect("/auth");
     const response = await fetch(
-      `${SERVER_URL}/watchlist/?user_id=${data.session?.user.id}`,
+      `${SERVER_URL}/watchlist/?user_id=${user_id}`,
       {
         method: "GET",
         headers: {
@@ -51,10 +49,7 @@ export const getAllWatchlist = async () => {
 
 export const getWatchlist = async ({ id }: { id: string }) => {
   try {
-    // const { access_token } = await getSession();
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const access_token = data.session?.access_token;
+    const { access_token } = await getSession();
     if (!access_token) redirect("/auth");
     const response = await fetch(`${SERVER_URL}/watchlist/?id=${id}`, {
       method: "GET",
@@ -88,10 +83,7 @@ export const createWatchlist = async ({
   newWatchList: WatchlistForm;
 }) => {
   try {
-    // const { access_token } = await getSession();
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const access_token = data.session?.access_token;
+    const { access_token } = await getSession();
     if (!access_token) redirect("/auth");
     const newData: insertWatchlist = {
       watchlist: {
@@ -140,11 +132,7 @@ export const createWatchlist = async ({
 
 export const deleteWatchlist = async ({ id }: { id: string }) => {
   try {
-    // const { access_token } = await getSession();
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const access_token = data.session?.access_token;
-
+    const { access_token } = await getSession();
     if (!access_token) redirect("/auth");
     const response = await fetch(`${SERVER_URL}/watchlist/?id=${id}`, {
       method: "DELETE",
@@ -178,10 +166,7 @@ export const updateWatchlist = async ({
   id: string;
 }) => {
   try {
-    // const { access_token } = await getSession();
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase.auth.getSession();
-    const access_token = data.session?.access_token;
+    const { access_token } = await getSession();
     if (!access_token) redirect("/auth");
     const newData = {
       watchlist_id: id,

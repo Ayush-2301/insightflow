@@ -20,7 +20,7 @@ import {
   CalendarIcon,
   EllipsisVertical,
   Plus,
-  Trello,
+  Unplug,
 } from "lucide-react";
 import {
   Form,
@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { SheetClose } from "@/components/ui/sheet";
-import type { Task } from "@/lib/types";
+import type { Task, Trello } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { deleteTask, insertTask, updateTask } from "@/lib/actions/tasks";
@@ -47,6 +47,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  addTaskToTrello,
+  disconnectTaskFromTrello,
+} from "@/lib/actions/trello";
+import { Spinner } from "@/components/Spinner";
 
 const StatusOption = [
   { label: "Not Started", value: "Not Started", color: "#adb5bd" },
@@ -75,15 +80,18 @@ const TaskForm = ({
   initialData,
   taskID,
   userID,
+  trelloInfo,
 }: {
   initialData: Task | null;
   taskID?: string;
   userID: string;
+  trelloInfo: Trello | null | undefined;
 }) => {
   const router = useRouter();
   const { toast } = useToast();
   const { setTaskID, setOpenSheet } = useContext(Context);
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const title = initialData ? "Edit Task" : "Create Task";
   const description = initialData
@@ -111,8 +119,6 @@ const TaskForm = ({
     defaultValues,
   });
 
-  const isLoading = form.formState.isLoading;
-
   async function update({
     newTask,
     taskID,
@@ -120,7 +126,9 @@ const TaskForm = ({
     newTask: TaskForm;
     taskID: string;
   }) {
+    setIsLoading(true);
     const res = await updateTask({ newTask, taskID });
+    setIsLoading(false);
     if (res) {
       toast({
         title: "Task updated successfully",
@@ -129,7 +137,9 @@ const TaskForm = ({
     }
   }
   async function insert({ newTask }: { newTask: TaskForm }) {
+    setIsLoading(true);
     const res = await insertTask({ newTask });
+    setIsLoading(false);
     if ("error" in res) {
       toast({
         title: "Error creating task",
@@ -163,7 +173,9 @@ const TaskForm = ({
     }
   };
   async function deleteDetail(id: string) {
+    setIsLoading(true);
     const res = await deleteTask({ id });
+    setIsLoading(false);
     if ("error" in res) {
       toast({
         title: "Error deleting task",
@@ -190,6 +202,92 @@ const TaskForm = ({
     }
   }, []);
 
+  function formatContent(content: string) {
+    if (content.includes("<br>")) {
+      const formattedContent = content
+        .replaceAll("-", "")
+        .split("<br>")
+        .map((item) => `• ${item}`)
+        .join("\n");
+      form.setValue("description", formattedContent);
+    } else if (content.includes("- ")) {
+      const idx = content.indexOf("- ");
+      const formattedContent = content
+        .slice(idx + 1)
+        .split("- ")
+        .map((item) => `• ${item.trim()}`)
+        .join("\n");
+      form.setValue("description", formattedContent);
+    }
+  }
+  async function addToTrello() {
+    if (!trelloInfo?.access_token) {
+      setOpenSheet((prev) => !prev);
+      setTaskID("");
+      router.push("/settings/integrations");
+    } else {
+      if (trelloInfo.access_token && trelloInfo.list_id && taskID) {
+        setIsLoading(true);
+        const res = await addTaskToTrello({
+          name: form.getValues("title"),
+          desc: form.getValues("description"),
+          access_token: trelloInfo.access_token,
+          taskid: taskID,
+          list_id: trelloInfo.list_id,
+        });
+        if ("error" in res) {
+          setIsLoading(false);
+          toast({
+            title: "Error adding task to Trello",
+            description: res.error,
+            variant: "destructive",
+          });
+          setOpenSheet((prev) => !prev);
+          setTaskID("");
+          router.push("/tasks");
+        } else {
+          setIsLoading(false);
+          toast({
+            title: "Task added to Trello successfully",
+          });
+          setOpenSheet((prev) => !prev);
+          setTaskID("");
+          router.push("/tasks");
+        }
+      }
+    }
+  }
+  async function disconnectTrello() {
+    if (taskID) {
+      setIsLoading(true);
+      const res = await disconnectTaskFromTrello({ taskID });
+      setIsLoading(false);
+      if ("error" in res) {
+        toast({
+          title: "Error disconnecting task from Trello",
+          description: res.error,
+          variant: "destructive",
+        });
+        setOpenSheet((prev) => !prev);
+        setTaskID("");
+        router.push("/tasks");
+      } else {
+        toast({
+          title: "Task disconnected successfully",
+        });
+        setOpenSheet((prev) => !prev);
+        setTaskID("");
+        router.push("/tasks");
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (initialData && initialData.description) {
+      formatContent(initialData.description);
+    }
+  }, []);
+
   return (
     <>
       <AlertModal
@@ -207,43 +305,44 @@ const TaskForm = ({
             <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
             <p className="text-sm text-muted-foreground">{description}</p>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button type="button" variant={"ghost"}>
-                <EllipsisVertical className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="mr-[30px]" align="center">
-              <DropdownMenuItem className="group/add cursor-pointer">
-                <div className="flex justify-start items-center gap-2 cursor-pointer group-hover/add:text-[#0079bf] ">
-                  <Plus className="w-4 h-4" /> Add Task to Trello
-                </div>
-              </DropdownMenuItem>
-
-              {initialData && (
+          {initialData && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button disabled={isLoading} type="button" variant={"ghost"}>
+                  <EllipsisVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="mr-[30px]" align="center">
+                {initialData.card_id === null ? (
+                  <DropdownMenuItem className="group/add cursor-pointer">
+                    <div
+                      onClick={() => addToTrello()}
+                      className="flex justify-start items-center gap-2 cursor-pointer group-hover/add:text-[#0079bf] "
+                    >
+                      <Plus className="w-4 h-4" /> Add Task to Trello
+                    </div>
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem className=" group/disconnect cursor-pointer">
+                    <div
+                      onClick={() => disconnectTrello()}
+                      className="flex justify-start items-center gap-2 cursor-pointer group-hover/disconnect:text-red-500 "
+                    >
+                      <Unplug className="w-4 h-4" /> Disconnect Task from Trello
+                    </div>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem className="group/delete cursor-pointer">
                   <div
                     onClick={() => setOpen(true)}
-                    className=" group-hover/delete:text-red-500 flex justify-start items-center gap-2 "
+                    className=" group-hover/delete:text-red-500 flex justify-start items-center gap-2 w-full "
                   >
                     <Trash className="w-4 h-4" /> Delete
                   </div>
                 </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {/* 
-          {initialData && (
-            <Button
-              disabled={isLoading}
-              variant="destructive"
-              className="mr-6"
-              size="sm"
-              onClick={() => setOpen(true)}
-            >
-              <Trash className="h-4 w-4" />
-            </Button>
-          )} */}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
         <Form {...form}>
           <form className="w-full space-y-2">
@@ -404,6 +503,7 @@ const TaskForm = ({
                     <Textarea
                       placeholder="Give a description about this task..."
                       className="resize-none  outline-none  border-none px-0"
+                      rows={10}
                       {...field}
                     />
                   </FormControl>
@@ -418,7 +518,7 @@ const TaskForm = ({
                   type="button"
                   onClick={onSubmit}
                 >
-                  {action}
+                  {isLoading ? <Spinner size="default" /> : <>{action}</>}
                 </Button>
               </SheetClose>
             </div>

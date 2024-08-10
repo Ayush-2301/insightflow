@@ -10,17 +10,19 @@ import {
 
 import TaskForm from "./TaskForm";
 import { Context } from "@/components/provider/ContextProvider";
-import { Task } from "@/lib/types";
+import { Task, Trello } from "@/lib/types";
 import { getSingleTask } from "@/lib/actions/tasks";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
+import { getTrelloInfo } from "@/lib/actions/trello";
 
 export function EditTask({ userID }: { userID: string }) {
   const { toast } = useToast();
   const { taskID, setTaskID, openSheet, setOpenSheet } = useContext(Context);
   const [isLoading, setLoading] = useState(false);
+  const [trelloInfo, setTrelloInfo] = useState<Trello | null | undefined>();
   const [initialValue, setInitialValue] = useState<Task | null>(null);
 
   useEffect(() => {
@@ -29,6 +31,7 @@ export function EditTask({ userID }: { userID: string }) {
       setLoading(true);
       const fetchTask = async () => {
         const task = await getSingleTask({ id: taskID });
+        const trello_info = await getTrelloInfo();
         if ("error" in task) {
           toast({
             title: "Error fetching task",
@@ -36,8 +39,16 @@ export function EditTask({ userID }: { userID: string }) {
           });
           setOpenSheet(false);
           setTaskID("");
+          if (trello_info && "error" in trello_info) {
+            toast({
+              title: "Error fetching trello info",
+              variant: "destructive",
+            });
+          }
         } else {
           setInitialValue(task || null);
+          if (!(trello_info && "error" in trello_info))
+            setTrelloInfo(trello_info);
           setLoading(false);
         }
       };
@@ -69,6 +80,7 @@ export function EditTask({ userID }: { userID: string }) {
             initialData={initialValue}
             taskID={taskID}
             userID={userID}
+            trelloInfo={trelloInfo}
           />
         )}
       </SheetContent>

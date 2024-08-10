@@ -7,6 +7,7 @@ import { Spinner } from "@/components/Spinner";
 const TaskEditServer = async () => {
   const supabase = createSupabaseServerClient();
   const { data } = await supabase.auth.getUser();
+
   return (
     <Suspense fallback={<Loading />}>
       {data.user?.id && <EditTask userID={data.user.id} />}

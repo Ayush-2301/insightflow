@@ -35,6 +35,7 @@ export interface Task {
   approved: boolean;
   assigned_to: string;
   created_at: Date;
+  card_id: string | null;
 }
 export interface RecommendedTask {
   task_id: string;
@@ -97,4 +98,12 @@ export interface insertWatchlist {
 
 export interface Goal {
   goal: string;
+}
+
+export interface Trello {
+  id: string;
+  user_id: string;
+  access_token: string | null;
+  board_id: string | null;
+  list_id: string | null;
 }
