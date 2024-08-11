@@ -293,7 +293,7 @@ const CompanyForm = ({
                   />
                 </FormControl>
                 <p className=" text-red-500">
-                  {error.name && error.name.message}
+                  {error.industry && error.industry.message}
                 </p>
               </FormItem>
             )}
@@ -368,7 +368,7 @@ const CompanyForm = ({
                   />
                 </FormControl> */}
                 <p className=" text-red-500">
-                  {error.name && error.name.message}
+                  {error.goal && error.goal.message}
                 </p>
               </FormItem>
             )}
@@ -393,7 +393,7 @@ const CompanyForm = ({
                   />
                 </FormControl>
                 <p className=" text-red-500">
-                  {error.name && error.name.message}
+                  {error.website_url && error.website_url.message}
                 </p>
               </FormItem>
             )}
@@ -431,7 +431,7 @@ const CompanyForm = ({
                       </div>
                     </FormControl>
                     <p className=" text-red-500">
-                      {error.name && error.name.message}
+                      {error.competion_urls && error.competion_urls.message}
                     </p>
                   </FormItem>
                 )}
@@ -477,7 +477,8 @@ const CompanyForm = ({
                           </div>
                         </FormControl>
                         <p className=" text-red-500">
-                          {error.name && error.name.message}
+                          {error.social_media_url &&
+                            error.social_media_url.message}
                         </p>
                       </FormItem>
                     )}
@@ -507,7 +508,7 @@ const CompanyForm = ({
                   />
                 </FormControl>
                 <p className=" text-red-500">
-                  {error.name && error.name.message}
+                  {error.description && error.description.message}
                 </p>
               </FormItem>
             )}

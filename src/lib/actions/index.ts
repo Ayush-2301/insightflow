@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "../supabase/server";
-import { Goal, Keyword } from "../types";
+import { Goal, Keyword, Masterkeywords } from "../types";
 
 const SERVER_URL = process.env.SERVER_URL;
 export default async function readUser() {
@@ -61,4 +61,32 @@ export const getGoals = async () => {
   });
   const goals: Goal[] = await response.json();
   return goals;
+};
+
+export const getMasterKeywords = async () => {
+  try {
+    const { access_token, user_id } = await getSession();
+    if (!access_token) redirect("/auth");
+    const response = await fetch(
+      `${SERVER_URL}/masterkeywords?user_id=${user_id}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: access_token,
+        },
+        next: {
+          revalidate: 3600,
+          tags: ["masterkeywords"],
+        },
+      }
+    );
+    console.log(response);
+    if (response.ok) {
+      const res: Masterkeywords[] = await response.json();
+      console.log(res);
+      return res;
+    }
+  } catch (error) {
+    console.log("error", error);
+  }
 };

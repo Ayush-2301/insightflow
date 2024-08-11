@@ -128,7 +128,6 @@ const WatchlistForm = ({
           table: "master_keywords",
         },
         (payload) => {
-          console.log(payload);
           const newKeyword = payload.new as Keyword;
           setSuggestedKeywords((prev) =>
             prev ? [...prev, newKeyword] : [newKeyword]

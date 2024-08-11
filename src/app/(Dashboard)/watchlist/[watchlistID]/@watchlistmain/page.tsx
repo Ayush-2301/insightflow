@@ -3,6 +3,7 @@ import { getWatchlist } from "@/lib/actions/watchlist";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Keyword, Watchlist } from "@/lib/types";
 import WatchlistForm from "../../components/WatchlistForm";
+import { getMasterKeywords } from "@/lib/actions";
 
 const watchlistMain = async ({
   params,
@@ -17,15 +18,10 @@ const watchlistMain = async ({
     id === "new" ? undefined : await getWatchlist({ id });
 
   let suggestedKeywords: Keyword[] | undefined;
-  const res = await getCompany();
+  const res = await getMasterKeywords();
 
-  if (
-    res &&
-    !("error" in res) &&
-    !("message" in res) &&
-    "master_keywords" in res
-  ) {
-    suggestedKeywords = res?.master_keywords?.map((item) => {
+  if (res) {
+    suggestedKeywords = res?.map((item) => {
       return {
         id: item.id,
         keyword: item.keyword,

@@ -18,10 +18,16 @@ export interface Company {
     instagram?: string | undefined;
     youtube?: string | undefined;
   };
-  master_keywords?: {
-    id: string;
-    keyword: string;
-  }[];
+  // master_keywords?: {
+  //   id: string;
+  //   keyword: string;
+  // }[];
+}
+export interface Masterkeywords {
+  id: string;
+  company_id: string;
+  keyword: string;
+  user_id: string;
 }
 
 export interface Task {
