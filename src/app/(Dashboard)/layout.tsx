@@ -6,8 +6,12 @@ import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
   children,
+  home,
+  company,
 }: Readonly<{
   children: React.ReactNode;
+  home: React.ReactNode;
+  company: React.ReactNode;
 }>) {
   const { data } = await readUser();
   if (!data.user) redirect("/auth");
