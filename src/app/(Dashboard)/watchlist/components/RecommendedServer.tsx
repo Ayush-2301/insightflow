@@ -21,7 +21,7 @@ const RecommendedServer = async ({ id }: { id: string }) => {
       <h2 className="text-2xl font-bold mb-4">Recommended Tasks</h2>
       <div className="space-y-4 mb-4">
         <RecommendedTaskProvider>
-          <Recommendedtask id={id} staticTasks={staticTasks?.paginatedResult} />
+          <Recommendedtask staticTasks={staticTasks?.paginatedResult} />
         </RecommendedTaskProvider>
       </div>
     </div>

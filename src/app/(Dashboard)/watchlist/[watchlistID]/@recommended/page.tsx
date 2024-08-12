@@ -20,10 +20,7 @@ const recommendedPage = async ({
       <div className="space-y-4 mb-4">
         <RecommendedTaskProvider>
           <Suspense fallback={<WatchlistsSkeleton />}>
-            <Recommendedtask
-              staticTasks={staticTasks?.paginatedResult}
-              id={id}
-            />
+            <Recommendedtask staticTasks={staticTasks?.paginatedResult} />
           </Suspense>
         </RecommendedTaskProvider>
       </div>

@@ -101,7 +101,6 @@ export const createWatchlist = async ({
       },
       body: JSON.stringify(newData),
     });
-    console.log(newData);
     if (!response.ok) {
       const error: {
         error: string;

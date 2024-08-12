@@ -1,10 +1,6 @@
 "use client";
-import React, { useContext, useEffect, useState } from "react";
-import { RecommendedTask, StaticTasks } from "@/lib/types";
-import { useRouter } from "next/navigation";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { WatchlistsSkeleton } from "./Watchlists";
-import { getRecommendedTask } from "@/lib/actions/recommended";
+import React, { useContext, useEffect } from "react";
+import { StaticTasks } from "@/lib/types";
 
 import dynamic from "next/dynamic";
 import { RecommendedTaskContext } from "@/components/provider/RecommendedTaskProvider";
@@ -15,15 +11,28 @@ const RecommendationTaskTable = dynamic(
 );
 
 const Recommendedtask = ({
-  id,
   staticTasks,
 }: {
-  id: string;
   staticTasks: StaticTasks[] | undefined;
 }) => {
   const { setStaticTasks } = useContext(RecommendedTaskContext);
+  const getUniqueTasks = (tasks: StaticTasks[]) => {
+    const seenTasks = new Set<string>();
+    return tasks.filter((task) => {
+      if (seenTasks.has(task.task)) {
+        return false;
+      } else {
+        seenTasks.add(task.task);
+        return true;
+      }
+    });
+  };
+
   useEffect(() => {
-    if (staticTasks) setStaticTasks(staticTasks);
+    if (staticTasks) {
+      const uniqueTasks = getUniqueTasks(staticTasks);
+      setStaticTasks(uniqueTasks);
+    }
   }, [setStaticTasks, staticTasks]);
   // const router = useRouter();
   // const [loading, setLoading] = useState(true);
