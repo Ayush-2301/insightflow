@@ -1,41 +1,51 @@
 import { getCompany } from "@/lib/actions/company";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import Company from "./Company";
 import { Company as CompanyType } from "@/lib/types";
-import { Suspense } from "react";
+import { getGoals, readUser } from "@/lib/actions";
+import Company from "../components/Company";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getGoals } from "@/lib/actions";
+import { Suspense } from "react";
 
 const CompanyServer = async () => {
-  const supabase = createSupabaseServerClient();
-  const { data } = await supabase.auth.getUser();
-  const companyData = await getCompany();
-  const goals = await getGoals();
-  const isValidCompany = (company: any): company is CompanyType => {
-    return company && !("error" in company) && !("message" in company);
-  };
+  const [{ data: userData }, companyData, goals] = await Promise.all([
+    readUser(),
+    getCompany(),
+    getGoals(),
+  ]);
 
   const company = isValidCompany(companyData) ? companyData : undefined;
+
   return (
-    <Suspense fallback={<CompnaySkeleton />}>
-      <div className="mt-6">
-        <h2 className=" text-3xl  font-semibold tracking-tight">
-          Hello👋 {data.user?.user_metadata.full_name}
-        </h2>
-        {data.user && (
-          <Company userID={data.user?.id} company={company} goals={goals} />
+    <div className="mt-6">
+      <h2 className="text-3xl font-semibold tracking-tight">
+        Hello👋 {userData?.user?.user_metadata.full_name}
+      </h2>
+      <Suspense fallback={<PreviewSkeleton />}>
+        {userData?.user && (
+          <Company userID={userData.user.id} company={company} goals={goals} />
         )}
-      </div>
-    </Suspense>
+      </Suspense>
+    </div>
   );
+};
+
+const isValidCompany = (company: any): company is CompanyType => {
+  return company && !("error" in company) && !("message" in company);
 };
 
 export default CompanyServer;
 
-function CompnaySkeleton() {
+function PreviewSkeleton() {
   return (
-    <div className="mt-6 space-y-2">
-      <Skeleton className="h-[40px] w-[250px] rounded-xl" />
+    <div className="space-y-2">
+      <div className="flex flex-col justify-start items-start space-y-2">
+        <div className="flex space-x-2">
+          <Skeleton className="h-[30px] w-[200px]" />
+          <Skeleton className="h-[30px] w-[30px] rounded-full" />
+        </div>
+        <Skeleton className="h-[30px] w-[250px]" />
+        <Skeleton className="h-[30px] w-[300px]" />
+      </div>
+      <Skeleton className="h-[100px] w-full rounded-xl" />
     </div>
   );
 }

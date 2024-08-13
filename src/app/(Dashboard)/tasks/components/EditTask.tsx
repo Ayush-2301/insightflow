@@ -7,7 +7,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
 import TaskForm from "./TaskForm";
 import { Context } from "@/components/provider/ContextProvider";
 import { Task, Trello } from "@/lib/types";
@@ -29,34 +28,41 @@ export function EditTask({ userID }: { userID: string }) {
     if (taskID) {
       setOpenSheet(true);
       setLoading(true);
-      const fetchTask = async () => {
-        const task = await getSingleTask({ id: taskID });
-        const trello_info = await getTrelloInfo();
-        if ("error" in task) {
-          toast({
-            title: "Error fetching task",
-            variant: "destructive",
-          });
-          setOpenSheet(false);
-          setTaskID("");
-          if (trello_info && "error" in trello_info) {
-            toast({
-              title: "Error fetching trello info",
-              variant: "destructive",
-            });
-          }
-        } else {
-          setInitialValue(task || null);
-          if (!(trello_info && "error" in trello_info))
-            setTrelloInfo(trello_info);
-          setLoading(false);
-        }
-      };
-      fetchTask();
+      fetchTaskAndTrelloInfo();
     } else {
       setInitialValue(null);
     }
   }, [taskID]);
+
+  const fetchTaskAndTrelloInfo = async () => {
+    try {
+      const [task, trello_info] = await Promise.all([
+        getSingleTask({ id: taskID }),
+        getTrelloInfo(),
+      ]);
+
+      if ("error" in task) {
+        handleFetchError("Error fetching task");
+        return;
+      }
+
+      if (trello_info && "error" in trello_info) {
+        handleFetchError("Error fetching trello info");
+      } else {
+        setInitialValue(task || null);
+        setTrelloInfo(trello_info);
+        setLoading(false);
+      }
+    } catch (error) {
+      handleFetchError("An unexpected error occurred");
+    }
+  };
+
+  const handleFetchError = (message: string) => {
+    toast({ title: message, variant: "destructive" });
+    setOpenSheet(false);
+    setTaskID("");
+  };
 
   const handleClose = () => {
     setOpenSheet(!openSheet);
@@ -87,6 +93,7 @@ export function EditTask({ userID }: { userID: string }) {
     </Sheet>
   );
 }
+
 export function TaskFormSkeleton() {
   return (
     <div className="flex flex-col items-start py-4  space-y-8 ">

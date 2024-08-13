@@ -127,32 +127,34 @@ const TaskForm = ({
     taskID: string;
   }) {
     setIsLoading(true);
-    const res = await updateTask({ newTask, taskID });
-    setIsLoading(false);
-    if (res) {
-      toast({
-        title: "Task updated successfully",
-      });
-      router.push("/tasks");
-    }
+    await updateTask({ newTask, taskID }).then((res) => {
+      setIsLoading(false);
+      if (res) {
+        toast({
+          title: "Task updated successfully",
+        });
+        router.push("/tasks");
+      }
+    });
   }
   async function insert({ newTask }: { newTask: TaskForm }) {
     setIsLoading(true);
-    const res = await insertTask({ newTask });
-    setIsLoading(false);
-    if ("error" in res) {
-      toast({
-        title: "Error creating task",
-        description: res.error,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Task created successfully",
-      });
-      router.push("/tasks");
-      router.refresh();
-    }
+    await insertTask({ newTask }).then((res) => {
+      setIsLoading(false);
+      if ("error" in res) {
+        toast({
+          title: "Error creating task",
+          description: res.error,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Task created successfully",
+        });
+        router.push("/tasks");
+        router.refresh();
+      }
+    });
   }
   const onSubmit = () => {
     const newTask: TaskForm = {

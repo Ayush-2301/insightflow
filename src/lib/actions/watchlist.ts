@@ -103,8 +103,9 @@ export const createWatchlist = async ({
     });
     if (!response.ok) {
       const error: {
-        error: string;
+        message: string;
       } = await response.json();
+      console.log(error);
       return error;
     } else {
       revalidateTag("watchlist");

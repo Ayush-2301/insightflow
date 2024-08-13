@@ -1,7 +1,7 @@
 "use client";
-import React, { ReactNode, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { EllipsisVertical, LucideEdit, Plus, Trash } from "lucide-react";
+import { EllipsisVertical, LucideEdit, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Watchlist } from "@/lib/types";
 import { AlertModal } from "@/components/modal/alert-modal";
@@ -15,10 +15,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 const WatchlistItem = ({
   data,
-  children,
+
+  RecommendedServer,
 }: {
   data: Watchlist;
-  children: ReactNode;
+  RecommendedServer: JSX.Element;
 }) => {
   const [open, setOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -49,7 +50,6 @@ const WatchlistItem = ({
       router.push("/watchlist");
     }
   }
-
   return (
     <>
       <AlertModal
@@ -124,7 +124,7 @@ const WatchlistItem = ({
         >
           {!show ? "Show Recommended Task" : "Close"}
         </Button>
-        {show && <>{children}</>}
+        {show ? RecommendedServer : null}
       </div>
     </>
   );

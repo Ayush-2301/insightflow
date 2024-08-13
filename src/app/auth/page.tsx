@@ -1,11 +1,10 @@
 import React from "react";
 import { AuthForm } from "./components/AuthForm";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { readUser } from "@/lib/actions";
 
 export default async function page() {
-  const supabase = createSupabaseServerClient();
-  const { data } = await supabase.auth.getUser();
+  const { data } = await readUser();
   if (data.user) redirect("/");
 
   return (

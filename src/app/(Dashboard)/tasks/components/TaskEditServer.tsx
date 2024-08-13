@@ -1,26 +1,10 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { EditTask } from "./EditTask";
-import { Suspense } from "react";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/Spinner";
+import { readUser } from "@/lib/actions";
 
 const TaskEditServer = async () => {
-  const supabase = createSupabaseServerClient();
-  const { data } = await supabase.auth.getUser();
+  const { data } = await readUser();
 
-  return (
-    <Suspense fallback={<Loading />}>
-      {data.user?.id && <EditTask userID={data.user.id} />}
-    </Suspense>
-  );
+  return <>{data.user?.id && <EditTask userID={data.user.id} />}</>;
 };
 
 export default TaskEditServer;
-
-const Loading = () => {
-  return (
-    <Button>
-      <Spinner size={"default"} />
-    </Button>
-  );
-};

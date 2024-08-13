@@ -98,10 +98,10 @@ const WatchlistForm = ({
     setIsLoading(true);
     const res = await createWatchlist({ newWatchList });
     setIsLoading(false);
-    if ("error" in res) {
+    if ("message" in res) {
       toast({
         title: "Error creating watchlist",
-        description: res.error,
+        description: res.message,
         variant: "destructive",
       });
     } else {

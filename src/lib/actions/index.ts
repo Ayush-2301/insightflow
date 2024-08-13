@@ -3,12 +3,13 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "../supabase/server";
 import { Goal, Keyword, Masterkeywords } from "../types";
+import { cache } from "react";
 
 const SERVER_URL = process.env.SERVER_URL;
-export default async function readUser() {
+export const readUser = cache(async () => {
   const supabase = createSupabaseServerClient();
   return await supabase.auth.getUser();
-}
+});
 
 export const getSession = async () => {
   const supabase = createSupabaseServerClient();
@@ -80,10 +81,8 @@ export const getMasterKeywords = async () => {
         },
       }
     );
-    console.log(response);
     if (response.ok) {
       const res: Masterkeywords[] = await response.json();
-      console.log(res);
       return res;
     }
   } catch (error) {

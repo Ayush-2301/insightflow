@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import SettingsSidebar from "./components/SettingsSidebar";
 
 export default async function SettingsLayout({

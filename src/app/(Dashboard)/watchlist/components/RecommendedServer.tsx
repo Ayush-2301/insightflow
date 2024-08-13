@@ -3,6 +3,7 @@ import Recommendedtask from "./Recommendedtask";
 import RecommendedTaskProvider from "@/components/provider/RecommendedTaskProvider";
 
 const RecommendedServer = async ({ id }: { id: string }) => {
+  console.log("fetched");
   // let recommendedTask;
   // if (id) {
   //   recommendedTask = await getRecommendedTask({

@@ -1,5 +1,9 @@
 import TaskEditServer from "./components/TaskEditServer";
 import TaskServer from "./components/TaskServer";
+import { Spinner } from "@/components/Spinner";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 const TasksPage = async () => {
   return (
@@ -9,11 +13,49 @@ const TasksPage = async () => {
           <h1 className=" text-5xl font-bold">InsightFlow Task Management</h1>
           <p className=" text-xl text-muted-foreground">Manage your tasks</p>
         </div>
-        <TaskEditServer />
+        <Suspense fallback={<Loading />}>
+          <TaskEditServer />
+        </Suspense>
       </div>
-      <TaskServer />
+      <Suspense fallback={<TaskSkeleton />}>
+        <TaskServer />
+      </Suspense>
     </div>
   );
 };
 
 export default TasksPage;
+
+const Loading = () => {
+  return (
+    <Button>
+      <Spinner size={"default"} />
+    </Button>
+  );
+};
+
+const TaskSkeleton = () => {
+  return (
+    <div className="mt-6 space-y-4">
+      {[...Array(5)].map((_, index) => (
+        <div
+          key={index}
+          className="bg-white rounded-lg p-4 flex  items-start  space-y-2 shadow justify-between"
+        >
+          <div className="flex flex-col space-y-2 items-start">
+            <Skeleton className="h-[30px] w-[250px] rounded-md" />
+            <Skeleton className="h-[30px] w-[500px] rounded-md" />
+            <Skeleton className="h-[30px] w-[300px] rounded-md" />
+          </div>
+          <div className="flex flex-col justify-between space-y-8">
+            <div className="flex space-x-2 ">
+              <Skeleton className="h-[30px] w-[100px] rounded-md" />
+              <Skeleton className="h-[30px] w-[60px] rounded-sm" />
+            </div>
+            <Skeleton className="h-[30px] w-[150px] rounded-md" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};

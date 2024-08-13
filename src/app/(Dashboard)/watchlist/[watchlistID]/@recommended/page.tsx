@@ -2,7 +2,7 @@ import { getStaticTask } from "@/lib/actions/recommended";
 import Recommendedtask from "../../components/Recommendedtask";
 import RecommendedTaskProvider from "@/components/provider/RecommendedTaskProvider";
 import { Suspense } from "react";
-import { WatchlistsSkeleton } from "../../components/Watchlists";
+import { WatchlistsSkeleton } from "../../page";
 
 const recommendedPage = async ({
   params,

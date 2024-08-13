@@ -1,5 +1,5 @@
 "use client";
-import { StepType, TourProvider } from "@reactour/tour";
+import { TourProvider } from "@reactour/tour";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import { Goal, type Company } from "@/lib/types";
 import CompanyForm from "./CompanyForm";

@@ -94,10 +94,6 @@ const TaskItem = ({ data }: { data: Task }) => {
       <div className=" flex flex-col space-y-1 max-w-[70%]">
         <h1 className="text-xl font-semibold">{data.title}</h1>
         <div className="text-gray-600">{formatContent(data.description)}</div>
-        {/* <p
-          className="text-gray-600"
-          dangerouslySetInnerHTML={{ __html: data.description }}
-        /> */}
         <div className="flex items-center gap-2 text-gray-400">
           <Calendar className="w-4 h-4" />
           <p>Due Date: {new Date(data.deadline).toDateString()}</p>

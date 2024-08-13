@@ -235,8 +235,9 @@ const CompanyForm = ({
           altText="Start Guide"
           className="  bg-transparent border-none self-end"
           onClick={() => setIsOpen(true)}
+          asChild
         >
-          <Button type="button">Start Guide</Button>
+          <Button className="bg-primary hover:bg-primary">Start Guide</Button>
         </ToastAction>
       ),
     });
@@ -360,13 +361,7 @@ const CompanyForm = ({
                     </Command>
                   </PopoverContent>
                 </Popover>
-                {/* <FormControl>
-                  <Input
-                    disabled={isLoading}
-                    {...field}
-                    placeholder="Specify your goal (e.g., Expand customer base via partnerships)"
-                  />
-                </FormControl> */}
+
                 <p className=" text-red-500">
                   {error.goal && error.goal.message}
                 </p>
