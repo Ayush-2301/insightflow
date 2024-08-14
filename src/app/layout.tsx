@@ -5,8 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
-import { Suspense } from "react";
-import { Spinner } from "@/components/Spinner";
 
 const inter = Inter({ subsets: ["latin"] });
 
