@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={cn(inter.className, "text-primary")}>
-        <Suspense fallback={<Spinner size={"default"} />}>{children}</Suspense>
+        {children}
         <Analytics />
         <SpeedInsights />
         <Toaster />
