@@ -1,9 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { EllipsisVertical, LucideEdit, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Watchlist } from "@/lib/types";
+import { StaticTasks, Watchlist } from "@/lib/types";
 import { AlertModal } from "@/components/modal/alert-modal";
 import { deleteWatchlist } from "@/lib/actions/watchlist";
 import { useToast } from "@/components/ui/use-toast";
@@ -13,20 +13,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-const WatchlistItem = ({
-  data,
-
-  RecommendedServer,
-}: {
-  data: Watchlist;
-  RecommendedServer: JSX.Element;
-}) => {
+import { getStaticTask } from "@/lib/actions/recommended";
+import RecommendedTaskProvider from "@/components/provider/RecommendedTaskProvider";
+import Recommendedtask from "./Recommendedtask";
+import { WatchlistsSkeleton } from "../page";
+const WatchlistItem = ({ data }: { data: Watchlist }) => {
+  const router = useRouter();
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [show, setShow] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-  const { toast } = useToast();
+  const [staticTask, setStaticTask] = useState<StaticTasks[] | undefined>();
 
   function editWatchlist() {
     router.push(`watchlist/${data.id}`);
@@ -50,6 +48,22 @@ const WatchlistItem = ({
       router.push("/watchlist");
     }
   }
+  async function handleRecommendedTaskExpanded() {
+    setShow(!show);
+  }
+  useEffect(() => {
+    async function getStaticTasks() {
+      setIsLoading(true);
+      const id = data.id;
+      const task = await getStaticTask({ id });
+
+      setStaticTask(task?.paginatedResult);
+      setIsLoading(false);
+    }
+    if (show) {
+      getStaticTasks();
+    }
+  }, [show]);
   return (
     <>
       <AlertModal
@@ -71,7 +85,7 @@ const WatchlistItem = ({
               <DropdownMenuItem className="group/edit cursor-pointer">
                 <div
                   onClick={editWatchlist}
-                  className=" group-hover/edit:text-[#0079f] cursor-pointer gap-2 flex justify-start items-center"
+                  className=" group-hover/edit:text-[#0079f] cursor-pointer gap-2 flex justify-start items-center w-full"
                 >
                   <LucideEdit className="w-4 h-4" />
                   Edit
@@ -82,7 +96,7 @@ const WatchlistItem = ({
                 <DropdownMenuItem className="group/delete cursor-pointer">
                   <div
                     onClick={() => setOpen(true)}
-                    className=" group-hover/delete:text-red-500 flex justify-start items-center gap-2 "
+                    className=" group-hover/delete:text-red-500 flex justify-start items-center gap-2 w-full "
                   >
                     <Trash className="w-4 h-4" /> Delete
                   </div>
@@ -120,11 +134,24 @@ const WatchlistItem = ({
         <Button
           variant={"ghost"}
           className="underline self-start text-start px-1"
-          onClick={() => setShow(!show)}
+          onClick={() => handleRecommendedTaskExpanded()}
         >
           {!show ? "Show Recommended Task" : "Close"}
         </Button>
-        {show ? RecommendedServer : null}
+        {show ? (
+          isLoading ? (
+            <WatchlistsSkeleton />
+          ) : (
+            <div className="w-full mt-8">
+              <h2 className="text-2xl font-bold mb-4">Recommended Tasks</h2>
+              <div className="space-y-4 mb-4">
+                <RecommendedTaskProvider>
+                  <Recommendedtask staticTasks={staticTask} />
+                </RecommendedTaskProvider>
+              </div>
+            </div>
+          )
+        ) : null}
       </div>
     </>
   );

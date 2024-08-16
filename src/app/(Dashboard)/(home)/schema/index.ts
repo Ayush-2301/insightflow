@@ -12,14 +12,17 @@ export const companyFormSchema = z.object({
   user_id: z.string(),
   name: z.string().min(1, "Please enter a company name"),
   description: z.string().max(500, "Word limit is 500 characters").optional(),
-  website_url: z.string().url(),
+  website_url: z.string().url({ message: "Please enter a valid URL" }),
   industry: z.string().min(1, "Please enter your industry type"),
   goal: z.string().min(1, "Please select a goal"),
   competion_urls: z
     .array(
       z.object({
         id: z.string(),
-        url: z.string().url(),
+        url: z
+          .string()
+          .url({ message: "Please enter a valid URL" })
+          .min(1, "Please enter a URL"),
       })
     )
     .min(1, "Please enter atleast one competion URL"),

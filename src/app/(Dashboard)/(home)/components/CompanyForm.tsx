@@ -147,6 +147,7 @@ const CompanyForm = ({
 
   const error = form.formState.errors;
 
+  console.log(error);
   async function update({
     newCompany,
     id,
@@ -415,18 +416,23 @@ const CompanyForm = ({
                           {...field}
                           placeholder="Add URL"
                         />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          disabled={isLoading}
-                          onClick={() => remove(index)}
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
+                        {fields.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            disabled={isLoading}
+                            onClick={() => remove(index)}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
                       </div>
                     </FormControl>
+
                     <p className=" text-red-500">
-                      {error.competion_urls && error.competion_urls.message}
+                      {error &&
+                        error.competion_urls &&
+                        error.competion_urls[index]?.url?.message}
                     </p>
                   </FormItem>
                 )}
@@ -508,9 +514,22 @@ const CompanyForm = ({
               </FormItem>
             )}
           />
-          <Button disabled={isLoading} type="submit">
-            {isLoading ? <Spinner size="lg" /> : "Save"}
-          </Button>
+          <div className="flex items-center">
+            <Button disabled={isLoading} type="submit">
+              {isLoading ? <Spinner size="lg" /> : "Save"}
+            </Button>
+            <Button
+              variant={"outline"}
+              className="ml-2"
+              type="button"
+              disabled={isLoading}
+              onClick={() => {
+                if (setEdit) setEdit(false);
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
         </form>
       </Form>
     </div>

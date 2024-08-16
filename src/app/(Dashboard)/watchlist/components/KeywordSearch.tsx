@@ -83,7 +83,7 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
       volume: "0",
       approve: false,
     };
-    onSelect(customKeyword);
+    if (customKeyword.keyword !== "") onSelect(customKeyword);
     setQuery("");
   };
 

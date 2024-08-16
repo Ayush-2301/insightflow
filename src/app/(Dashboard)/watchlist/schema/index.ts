@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const keywords = z.object({
   id: z.string(),
-  keyword: z.string(),
+  keyword: z.string().min(1, "Please enter the name of the keyword"),
   volume: z.string(),
   approve: z.boolean(),
 });

@@ -84,13 +84,6 @@ const Company = ({
                   <p className=" text-muted-foreground text-lg">
                     Edit your Company Details
                   </p>
-                  <Button
-                    onClick={() => setEdit(false)}
-                    size="sm"
-                    variant={"outline"}
-                  >
-                    Cancel
-                  </Button>
                 </div>
                 <CompanyForm
                   setEdit={setEdit}

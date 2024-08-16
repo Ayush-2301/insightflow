@@ -3,17 +3,16 @@ import WatchlistServer from "./components/WatchlistServer";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import Heading from "@/components/Heading";
+import HeadingSkeleton from "@/components/HeadingSkeleton";
 
 const WatchListPage = () => {
   return (
     <div className=" flex flex-col justify-center  w-full">
       <div className="flex items-center justify-between border-b py-8">
-        <div className="flex flex-col space-y-2">
-          <h1 className=" text-5xl font-bold">InsightFlow Watchlists</h1>
-          <p className=" text-xl text-muted-foreground">
-            Manage your watchlists
-          </p>
-        </div>
+        <Suspense fallback={<HeadingSkeleton />}>
+          <Heading heading="Watchlist" description="Manage your watchlists" />
+        </Suspense>
         <Link href={"/watchlist/new"}>
           <Button type="submit">+ Add New</Button>
         </Link>

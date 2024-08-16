@@ -2,7 +2,6 @@ import WatchlistItem from "./WatchlistItem";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Watchlist, WatchlistReturned } from "@/lib/types";
-import RecommendedServer from "./RecommendedServer";
 
 const Watchlists = ({
   watchlists,
@@ -36,13 +35,7 @@ const Watchlists = ({
           createdAt: item.watchlist.createdAt,
           keywords: item.keywords,
         };
-        return (
-          <WatchlistItem
-            key={watchlist.id}
-            data={watchlist}
-            RecommendedServer={<RecommendedServer id={watchlist.id} />}
-          />
-        );
+        return <WatchlistItem key={watchlist.id} data={watchlist} />;
       })}
     </div>
   );

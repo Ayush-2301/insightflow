@@ -300,13 +300,9 @@ const TaskForm = ({
       />
       <div
         suppressHydrationWarning
-        className="flex flex-col items-start py-4  space-y-8 "
+        className="flex flex-row-reverse items-start py-8  relative"
       >
-        <div className="flex justify-between  w-full item-start">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
-            <p className="text-sm text-muted-foreground">{description}</p>
-          </div>
+        <div className="flex justify-between items-center absolute  space-x-1 w-fit">
           {initialData && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -347,7 +343,7 @@ const TaskForm = ({
           )}
         </div>
         <Form {...form}>
-          <form className="w-full space-y-2">
+          <form className="flex flex-col  w-full space-y-2 h-full ">
             <FormField
               control={form.control}
               name="title"
@@ -505,14 +501,13 @@ const TaskForm = ({
                     <Textarea
                       placeholder="Give a description about this task..."
                       className="resize-none  outline-none  border-none px-0"
-                      rows={10}
                       {...field}
                     />
                   </FormControl>
                 </FormItem>
               )}
             />
-            <div className="w-full flex justify-end">
+            <div className="w-full flex justify-end space-x-2 ">
               <SheetClose>
                 <Button
                   disabled={isLoading}
@@ -521,6 +516,11 @@ const TaskForm = ({
                   onClick={onSubmit}
                 >
                   {isLoading ? <Spinner size="default" /> : <>{action}</>}
+                </Button>
+              </SheetClose>
+              <SheetClose>
+                <Button type="button" disabled={isLoading} variant={"outline"}>
+                  Cancel
                 </Button>
               </SheetClose>
             </div>

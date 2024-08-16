@@ -97,12 +97,6 @@ export function EditTask({ userID }: { userID: string }) {
 export function TaskFormSkeleton() {
   return (
     <div className="flex flex-col items-start py-4  space-y-8 ">
-      <div className="flex justify-between  w-full item-start">
-        <div className="flex flex-col space-y-2">
-          <Skeleton className="h-[30px] w-[200px] rounded-md" />
-          <Skeleton className="h-[30px] w-[300px] rounded-md" />
-        </div>
-      </div>
       <div className="w-full space-y-4 flex flex-col items-start">
         <Skeleton className="h-[50px] w-[300px] rounded-md" />
         <div className="flex items-start justify-center  space-x-2">
