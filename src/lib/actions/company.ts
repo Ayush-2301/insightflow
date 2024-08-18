@@ -12,6 +12,7 @@ export const getCompany = async () => {
   try {
     const { access_token, user_id } = await getSession();
     if (!access_token) redirect("/auth");
+    console.log(user_id);
     const response = await fetch(
       `${SERVER_URL}/company_info/?user_id=${user_id}`,
 
@@ -35,7 +36,6 @@ export const getCompany = async () => {
       return res;
     }
     const res: Company = await response.json();
-    console.log(res);
 
     return res;
   } catch (error) {

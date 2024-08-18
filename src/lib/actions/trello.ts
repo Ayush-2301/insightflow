@@ -56,6 +56,7 @@ export const createTrelloInfo = async ({
           Authorization: access_token,
           "Content-Type": "application/json",
         },
+
         body: JSON.stringify(value),
       }
     );
@@ -180,7 +181,7 @@ export const updateTrelloConfig = async ({
     if (!response.ok) {
       return { message: "error" };
     }
-    revalidateTag("profile");
+    revalidateTag("trello");
     const res = await response.json();
     console.log(res);
     return { message: "Success" };
@@ -219,7 +220,8 @@ export const deleteTrelloConfig = async ({
       console.log(res);
       return { message: "error" };
     }
-    revalidateTag("profile");
+    revalidateTag("trello");
+    revalidateTag("tasks");
     const res = await response.json();
     console.log(res);
     return { message: "Success" };

@@ -93,10 +93,6 @@ const TaskForm = ({
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
-  const title = initialData ? "Edit Task" : "Create Task";
-  const description = initialData
-    ? "Make changes to your task here. Click save when you're done.."
-    : "Create a new custom task and set other parameters";
   const action = initialData ? "Save changes" : "Create";
   const defaultValues: TaskForm = initialData
     ? initialData
@@ -128,19 +124,18 @@ const TaskForm = ({
   }) {
     setIsLoading(true);
     await updateTask({ newTask, taskID }).then((res) => {
-      setIsLoading(false);
       if (res) {
         toast({
           title: "Task updated successfully",
         });
-        router.push("/tasks");
       }
+      setIsLoading(false);
+      router.push("/tasks");
     });
   }
   async function insert({ newTask }: { newTask: TaskForm }) {
     setIsLoading(true);
     await insertTask({ newTask }).then((res) => {
-      setIsLoading(false);
       if ("error" in res) {
         toast({
           title: "Error creating task",
@@ -151,6 +146,7 @@ const TaskForm = ({
         toast({
           title: "Task created successfully",
         });
+        setIsLoading(false);
         router.push("/tasks");
         router.refresh();
       }
@@ -177,7 +173,7 @@ const TaskForm = ({
   async function deleteDetail(id: string) {
     setIsLoading(true);
     const res = await deleteTask({ id });
-    setIsLoading(false);
+
     if ("error" in res) {
       toast({
         title: "Error deleting task",
@@ -188,6 +184,7 @@ const TaskForm = ({
       toast({
         title: "Task deleted successfully",
       });
+      setIsLoading(false);
       setOpenSheet((prev) => !prev);
       setTaskID("");
       router.push("/tasks");

@@ -63,6 +63,7 @@ const IntegrationForm = ({
   const { toast } = useToast();
   const [passwordVisibility, setPasswordVisibility] = useState(false);
   const [showUpdateSettings, setShowUpdateSettings] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof accessTokenSchema>>({
     resolver: zodResolver(accessTokenSchema),
@@ -80,6 +81,7 @@ const IntegrationForm = ({
   });
 
   async function onSubmit(value: AccessTokenForm) {
+    setLoading(true);
     const res = await createTrelloInfo({ value });
     if (!("error" in res)) {
       toast({
@@ -94,11 +96,12 @@ const IntegrationForm = ({
         description: "Failed to connect to Trello",
       });
     }
+    setLoading(false);
     form.reset();
   }
-  const isLoading = form.formState.isLoading;
-  const trelloUpdateLoading = form.formState.isLoading;
+
   async function onUpdate(value: UpdateTrelloForm) {
+    setLoading(true);
     const res = await updateTrelloConfig({
       accesstoken: value.accesstoken,
       boardTitle: value.boardTitle,
@@ -119,9 +122,11 @@ const IntegrationForm = ({
       router.push("/settings/integrations");
       router.refresh();
     }
+    setLoading(false);
     updateTrelloForm.reset();
   }
   async function handleDelete() {
+    setLoading(true);
     const res = await deleteTrelloConfig({
       previousAccesstoken: access_token!,
       boardId: board_id!,
@@ -136,6 +141,7 @@ const IntegrationForm = ({
       toast({
         title: "Trello Configuration deleted",
       });
+      setLoading(false);
       setOpen(false);
       router.push("/settings/integrations");
     }
@@ -144,7 +150,7 @@ const IntegrationForm = ({
   return (
     <>
       <TrelloAlertModal
-        loading={trelloUpdateLoading}
+        loading={isLoading}
         isOpen={open}
         onClose={() => setOpen(false)}
         onConfirm={handleDelete}
@@ -231,7 +237,11 @@ const IntegrationForm = ({
                       return (
                         <FormItem>
                           <FormControl>
-                            <Input {...field} placeholder={"Board Title"} />
+                            <Input
+                              {...field}
+                              placeholder={"Board Title"}
+                              disabled={isLoading}
+                            />
                           </FormControl>
                           <FormDescription>
                             Give a Title to your board
@@ -280,13 +290,13 @@ const IntegrationForm = ({
                     and select <strong>Add Task to Trello</strong>.
                   </li>
                   <li>
-                    A board named <strong>InsightFlow</strong> is created, and
+                    A board named <strong>{boardTitle}</strong> is created, and
                     inside that board, a list named{" "}
-                    <strong>InsightFlow Tasks</strong> is created.
+                    <strong>{boardTitle} Tasks</strong> is created.
                   </li>
                   <li>
                     New cards will be added to the{" "}
-                    <strong>InsightFlow Tasks</strong> list for each connected
+                    <strong>{boardTitle} Tasks</strong> list for each connected
                     task.
                   </li>
                   <li>
@@ -298,7 +308,22 @@ const IntegrationForm = ({
             ) : (
               <Card>
                 <CardHeader>
-                  <CardTitle>Connect to New Trello Account</CardTitle>
+                  <CardTitle className="flex items-center justify-between">
+                    Connect to new Trello account
+                    <span>
+                      <a
+                        href="https://www.atlassian.com/software/trello"
+                        target="_blank"
+                      >
+                        <Image
+                          src={"/trello-icon.svg"}
+                          alt="trell-icon"
+                          width={100}
+                          height={100}
+                        />
+                      </a>
+                    </span>
+                  </CardTitle>
                   <CardDescription>
                     Click
                     <a
@@ -332,6 +357,7 @@ const IntegrationForm = ({
                                   }
                                   placeholder={"Access Token"}
                                   className={`pr-12 `}
+                                  disabled={isLoading}
                                 />
                                 <Box
                                   className="absolute inset-y-0 right-0 flex cursor-pointer items-center p-3 text-muted-foreground"
@@ -350,7 +376,7 @@ const IntegrationForm = ({
                             </FormControl>
                             <FormDescription>
                               Paste the copied access token to allow insightflow
-                              to connect with your trello account.
+                              to connect with your new trello account.
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -363,7 +389,11 @@ const IntegrationForm = ({
                           return (
                             <FormItem>
                               <FormControl>
-                                <Input {...field} placeholder={"Board Title"} />
+                                <Input
+                                  {...field}
+                                  placeholder={"Board Title"}
+                                  disabled={isLoading}
+                                />
                               </FormControl>
                               <FormDescription>
                                 Want to give a new Title to your board?
@@ -373,11 +403,15 @@ const IntegrationForm = ({
                           );
                         }}
                       />
-                      <Button type="submit">Submit</Button>
+                      <Button type="submit">
+                        {" "}
+                        {isLoading ? <Spinner size="default" /> : <>Submit</>}
+                      </Button>
                       <Button
                         variant={"outline"}
                         className="ml-2"
                         type="button"
+                        disabled={isLoading}
                         onClick={() =>
                           setShowUpdateSettings(!showUpdateSettings)
                         }
@@ -393,11 +427,16 @@ const IntegrationForm = ({
               <div className="flex gap-2 items-center">
                 <Button
                   variant="outline"
+                  disabled={isLoading}
                   onClick={() => setShowUpdateSettings(!showUpdateSettings)}
                 >
                   Update
                 </Button>
-                <Button variant="destructive" onClick={() => setOpen(true)}>
+                <Button
+                  disabled={isLoading}
+                  variant="destructive"
+                  onClick={() => setOpen(true)}
+                >
                   Delete
                 </Button>
               </div>

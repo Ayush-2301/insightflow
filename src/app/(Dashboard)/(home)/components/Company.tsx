@@ -31,6 +31,11 @@ const Company = ({
       enableBodyScroll(target);
     }
   };
+  const isEmptyObject = (obj: any) => {
+    return Object.keys(obj).length === 0 && obj.constructor === Object;
+  };
+
+  const companyData = company && isEmptyObject(company) ? undefined : company;
 
   return (
     <TourProvider
@@ -52,15 +57,19 @@ const Company = ({
       padding={5}
     >
       <div>
-        {!company && (
+        {!companyData && (
           <>
             <p className=" text-muted-foreground text-lg">
               Tell us about yourself
             </p>
-            <CompanyForm initialData={company} userID={userID} goals={goals} />
+            <CompanyForm
+              initialData={companyData}
+              userID={userID}
+              goals={goals}
+            />
           </>
         )}
-        {company && (
+        {companyData && (
           <>
             {!edit ? (
               <Suspense fallback={<PreviewSkeleton />}>
@@ -76,7 +85,7 @@ const Company = ({
                     Edit
                   </Button>
                 </div>
-                <DetailsPreview initialData={company} />
+                <DetailsPreview initialData={companyData} />
               </Suspense>
             ) : (
               <>
@@ -87,7 +96,7 @@ const Company = ({
                 </div>
                 <CompanyForm
                   setEdit={setEdit}
-                  initialData={company}
+                  initialData={companyData}
                   userID={userID}
                   goals={goals}
                 />
