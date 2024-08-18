@@ -5,7 +5,6 @@ import { type Company } from "../types";
 import { CompanyForm } from "@/app/(Dashboard)/(home)/schema";
 import { revalidateTag } from "next/cache";
 import { getSession } from "./index";
-import { createSupabaseServerClient } from "../supabase/server";
 
 const SERVER_URL = process.env.SERVER_URL;
 
@@ -36,6 +35,7 @@ export const getCompany = async () => {
       return res;
     }
     const res: Company = await response.json();
+    console.log(res);
 
     return res;
   } catch (error) {

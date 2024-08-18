@@ -14,11 +14,11 @@ const Heading = async ({
     return company && !("error" in company) && !("message" in company);
   };
   const company = isValidCompany(company_info) ? company_info : undefined;
-
+  const name = company ? company.name : "InsightFlow";
   return (
     <div className="flex flex-col space-y-2">
       <h1 className=" text-5xl font-bold">
-        {company?.name}&apos;s {heading}
+        {name}&apos;s {heading}
       </h1>
       <p className=" text-xl text-muted-foreground">{description}</p>
     </div>

@@ -11,6 +11,7 @@ const IntegerationServer = async () => {
       <IntegrationForm
         access_token={trello_info?.access_token}
         board_id={trello_info?.board_id}
+        boardTitle={trello_info?.boardTitle}
       />
     </div>
   );

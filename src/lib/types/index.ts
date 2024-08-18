@@ -64,6 +64,7 @@ export interface StaticTasks {
   category: string;
   task: string;
   approve: null;
+  weightage: string;
 }
 
 export interface Keyword {
@@ -112,4 +113,5 @@ export interface Trello {
   access_token: string | null;
   board_id: string | null;
   list_id: string | null;
+  boardTitle: string;
 }

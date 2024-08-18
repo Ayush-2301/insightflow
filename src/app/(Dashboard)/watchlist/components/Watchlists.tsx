@@ -21,7 +21,7 @@ const Watchlists = ({
         <Button>Search</Button>
       </div>
 
-      {!data && (
+      {(!data || data.length == 0) && (
         <div className=" py-6 px-8 bg-gray-200 flex  rounded-md justify-center items-center">
           Nothing to Show
         </div>

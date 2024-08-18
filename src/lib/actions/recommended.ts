@@ -109,6 +109,7 @@ export const getStaticTask = async ({
         paginatedResult: StaticTasks[];
         totalCount: string;
       } = await response.json();
+      console.log(res);
       return res;
     }
   } catch (error) {

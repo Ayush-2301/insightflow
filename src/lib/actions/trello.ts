@@ -146,3 +146,82 @@ export const disconnectTaskFromTrello = async ({
     console.log(error);
   }
 };
+
+export const updateTrelloConfig = async ({
+  accesstoken,
+  boardId,
+  boardTitle,
+  previousAccesstoken,
+}: {
+  accesstoken: string;
+  boardId: string;
+  boardTitle: string;
+  previousAccesstoken: string;
+}) => {
+  try {
+    const { access_token, user_id } = await getSession();
+    if (!access_token) redirect("/auth");
+    const response = await fetch(
+      `https://app.pludous.com/updateTrelloConfig/?user_id=${user_id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: previousAccesstoken,
+        },
+        body: JSON.stringify({
+          accesstoken,
+          boardId,
+          boardTitle,
+          previousAccesstoken,
+        }),
+      }
+    );
+    if (!response.ok) {
+      return { message: "error" };
+    }
+    revalidateTag("profile");
+    const res = await response.json();
+    console.log(res);
+    return { message: "Success" };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const deleteTrelloConfig = async ({
+  previousAccesstoken,
+  boardId,
+}: {
+  previousAccesstoken: string;
+  boardId: string;
+}) => {
+  try {
+    console.log("called");
+    const { access_token, user_id } = await getSession();
+    if (!access_token) redirect("/auth");
+    const response = await fetch(
+      `${SERVER_URL}/deleteTrelloConfig?user_id=${user_id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: access_token,
+        },
+        body: JSON.stringify({
+          boardId,
+          previousAccesstoken,
+        }),
+      }
+    );
+    if (!response.ok) {
+      const res = await response.json();
+      console.log(res);
+      return { message: "error" };
+    }
+    revalidateTag("profile");
+    const res = await response.json();
+    console.log(res);
+    return { message: "Success" };
+  } catch (error) {}
+};

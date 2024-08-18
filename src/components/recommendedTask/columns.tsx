@@ -3,6 +3,7 @@ import { RecommendedTask, StaticTasks } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   ArrowDownWideNarrow,
+  ArrowUpDown,
   ArrowUpNarrowWide,
   ChevronRightIcon,
   Square,
@@ -11,6 +12,20 @@ import {
 
 import { Button } from "@/components/ui/button";
 import CellAction from "./cell-action";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "../ui/hover-card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 export const columns = ({
   approveTask,
@@ -90,15 +105,14 @@ export const columns = ({
     },
   },
   // {
-  //   accessorKey: "clarity",
+  //   accessorKey: "weightage",
   //   header: ({ column }) => {
   //     return (
   //       <Button
   //         variant="ghost"
-  //         className="flex items-center gap-1"
+  //         className="flex items-center self-end gap-1"
   //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
   //       >
-  //         Clarity
   //         {column.getIsSorted() === "asc" ? (
   //           <ArrowUpNarrowWide className="w-4 h-4" />
   //         ) : (
@@ -107,20 +121,58 @@ export const columns = ({
   //       </Button>
   //     );
   //   },
-  //   cell: ({ row }) => {
-  //     return <p className="text-center">{row.getValue("clarity")}%</p>;
-  //   },
+  //   cell: ({ row }) => <>{row.getValue("weightage")}</>,
   // },
+
   {
+    accessorKey: "weightage",
+    header: ({ column }) => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button variant="ghost" className="flex items-center gap-1">
+              {column.getIsSorted() === "desc" ? (
+                <ArrowUpNarrowWide className="w-4 h-4" />
+              ) : column.getIsSorted() === "asc" ? (
+                <ArrowDownWideNarrow className="w-4 h-4" />
+              ) : (
+                <ArrowUpDown className="w-4 h-4" />
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>Sort according to priority</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                onClick={() => column.toggleSorting(true)} // Toggle to ascending
+              >
+                <ArrowUpNarrowWide className="w-4 h-4 mr-2" />
+                <span>Ascending order of priority</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => column.toggleSorting(false)} // Toggle to descending
+              >
+                <ArrowDownWideNarrow className="w-4 h-4 mr-2" />
+                <span>Descending order of priority</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
     id: "actions",
     cell: ({ row }) => {
+      console.log(row);
       return (
-        <CellAction
-          task={row.original}
-          approveTaskLoading={approveTaskLoading}
-          approveTask={approveTask}
-          rejectTask={rejectTask}
-        />
+        <div className="flex justify-center">
+          <CellAction
+            task={row.original}
+            approveTaskLoading={approveTaskLoading}
+            approveTask={approveTask}
+            rejectTask={rejectTask}
+          />
+        </div>
       );
     },
   },

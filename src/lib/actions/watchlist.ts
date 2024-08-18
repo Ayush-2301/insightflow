@@ -3,14 +3,8 @@
 import { redirect } from "next/navigation";
 import { revalidateTag } from "next/cache";
 import { WatchlistForm } from "@/app/(Dashboard)/watchlist/schema";
-import {
-  insertWatchlist,
-  Keyword,
-  Watchlist,
-  WatchlistReturned,
-} from "../types";
+import { insertWatchlist, Watchlist, WatchlistReturned } from "../types";
 import { getSession } from "./index";
-import { createSupabaseServerClient } from "../supabase/server";
 const SERVER_URL = process.env.SERVER_URL;
 
 export const getAllWatchlist = async () => {
@@ -39,7 +33,6 @@ export const getAllWatchlist = async () => {
       return error;
     } else {
       const res: WatchlistReturned[] = await response.json();
-
       return res;
     }
   } catch (error) {
@@ -105,7 +98,7 @@ export const createWatchlist = async ({
       const error: {
         message: string;
       } = await response.json();
-      console.log(error);
+
       return error;
     } else {
       revalidateTag("watchlist");
