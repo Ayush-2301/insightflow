@@ -21,6 +21,7 @@ import {
   EllipsisVertical,
   Plus,
   Unplug,
+  Info,
 } from "lucide-react";
 import {
   Form,
@@ -52,6 +53,11 @@ import {
   disconnectTaskFromTrello,
 } from "@/lib/actions/trello";
 import { Spinner } from "@/components/Spinner";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 const StatusOption = [
   { label: "Not Started", value: "Not Started", color: "#adb5bd" },
@@ -300,6 +306,24 @@ const TaskForm = ({
         className="flex flex-row-reverse items-start py-8  relative"
       >
         <div className="flex justify-between items-center absolute  space-x-1 w-fit">
+          {trelloInfo?.access_token &&
+            trelloInfo.board_id &&
+            trelloInfo.boardTitle &&
+            initialData?.card_id && (
+              <HoverCard>
+                <HoverCardTrigger>
+                  <Info className={cn(`w-4 h-4 text-muted-foreground`)} />
+                </HoverCardTrigger>
+                <HoverCardContent
+                  className={cn(
+                    `w-80 text-sm font-normal text-muted-foreground`
+                  )}
+                >
+                  This is task is connected to Trello board:{" "}
+                  {trelloInfo.boardTitle}
+                </HoverCardContent>
+              </HoverCard>
+            )}
           {initialData && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
