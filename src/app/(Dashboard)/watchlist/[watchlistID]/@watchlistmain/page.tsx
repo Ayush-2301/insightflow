@@ -68,7 +68,7 @@ const watchlistMain = async ({
       id: item.id,
       keyword: item.keyword,
       volume: "0",
-      approve: false,
+      approve: item.approve,
     })
   );
 

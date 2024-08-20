@@ -28,6 +28,7 @@ export interface Masterkeywords {
   company_id: string;
   keyword: string;
   user_id: string;
+  approve: boolean;
 }
 
 export interface Task {

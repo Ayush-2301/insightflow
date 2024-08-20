@@ -372,14 +372,13 @@ const TaskForm = ({
                 <FormItem>
                   <div
                     className=" 
-                    inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50
-                    
+                    inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 w-[90%]
                     h-10 px-4 py-2 pl-1
                    hover:bg-accent  "
                   >
                     <FormControl>
                       <Input
-                        className="text-2xl font-bold tracking-tight bg-transparent placeholder:text-gray-300"
+                        className="text-2xl font-bold tracking-tight bg-transparent placeholder:text-gray-300 w-full truncate placeholder:truncate"
                         disabled={isLoading}
                         placeholder="Task Title"
                         {...field}

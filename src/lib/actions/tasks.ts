@@ -6,7 +6,6 @@ import { type Task } from "../types";
 import { revalidateTag } from "next/cache";
 import { TaskForm } from "@/app/(Dashboard)/tasks/schema";
 import { getSession } from "./index";
-import { createSupabaseServerClient } from "../supabase/server";
 const SERVER_URL = process.env.SERVER_URL;
 
 export const getAllTasks = async () => {

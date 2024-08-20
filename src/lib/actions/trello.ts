@@ -1,7 +1,6 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createSupabaseServerClient } from "../supabase/server";
 import { Trello } from "../types";
 import { AccessTokenForm } from "@/app/(Dashboard)/settings/schema";
 import { revalidateTag } from "next/cache";

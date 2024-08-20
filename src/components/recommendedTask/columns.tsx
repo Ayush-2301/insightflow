@@ -144,15 +144,11 @@ export const columns = ({
             <DropdownMenuLabel>Sort according to priority</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem
-                onClick={() => column.toggleSorting(true)} // Toggle to ascending
-              >
+              <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
                 <ArrowUpNarrowWide className="w-4 h-4 mr-2" />
                 <span>Ascending order of priority</span>
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => column.toggleSorting(false)} // Toggle to descending
-              >
+              <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
                 <ArrowDownWideNarrow className="w-4 h-4 mr-2" />
                 <span>Descending order of priority</span>
               </DropdownMenuItem>
