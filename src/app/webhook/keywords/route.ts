@@ -5,6 +5,7 @@ export async function POST(request: Request) {
   try {
     const supabase = createSupabaseServerClient();
     const response = await request.text();
+    console.log("webhook response", response);
     const data: {
       user_id: string;
     } = JSON.parse(response);

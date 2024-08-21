@@ -61,7 +61,7 @@ const WatchlistForm = ({
     Keyword[] | undefined
   >(initialsuggestedKeywords);
   const [loadingSuggestions, setLoadingSuggestions] = useState(
-    !initialsuggestedKeywords
+    initialsuggestedKeywords?.length === 0
   );
   const form = useForm<WatchlistForm>({
     resolver: zodResolver(watchlistFormSchema),
