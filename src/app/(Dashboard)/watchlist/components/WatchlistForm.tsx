@@ -68,6 +68,8 @@ const WatchlistForm = ({
     defaultValues,
   });
 
+  console.log("before suggested keywords", suggestedKeywords);
+  console.log("before suggested keywords loading", loadingSuggestions);
   const error = form.formState.errors;
   const supabase = createSupabaseBrowserClient();
 
@@ -139,8 +141,14 @@ const WatchlistForm = ({
                   approve: item.approve,
                 })
               );
+
               setSuggestedKeywords(suggestedKeywords);
               setLoadingSuggestions(false);
+              console.log("after suggested keywords", suggestedKeywords);
+              console.log(
+                "after suggested keywords loading",
+                loadingSuggestions
+              );
             }
           } catch (error) {
             console.error("Error fetching keywords:", error);
