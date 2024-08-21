@@ -123,7 +123,7 @@ const WatchlistForm = ({
 
   useEffect(() => {
     const channel = supabase.channel("keywords-broadcast");
-
+    console.log("this is active", channel);
     channel.on(
       "broadcast",
       { event: "keyword_generation_complete" },

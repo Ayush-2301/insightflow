@@ -68,6 +68,7 @@ export const createCompany = async ({
     }
     const res: Company = await response.json();
     revalidateTag("company_info");
+    revalidateTag("master_keywords");
     return res;
   } catch (error) {
     throw new Error("Error Creating Company ");
@@ -103,6 +104,7 @@ export const updateCompany = async ({
     }
     const res: Company = await response.json();
     revalidateTag("company_info");
+    revalidateTag("master_keywords");
     return res;
   } catch (error) {
     throw new Error("Error Creating Company");

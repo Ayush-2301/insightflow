@@ -75,7 +75,10 @@ export const getMasterKeywords = async () => {
         headers: {
           Authorization: access_token,
         },
-        cache: "no-cache",
+        next: {
+          revalidate: 3600,
+          tags: ["master_keywords"],
+        },
       }
     );
     if (response.ok) {
