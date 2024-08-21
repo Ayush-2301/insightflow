@@ -12,6 +12,9 @@ import { Check, MoreHorizontal, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { Spinner } from "../Spinner";
 import { RecommendedTask, StaticTasks } from "@/lib/types";
+import { useContext } from "react";
+import RecommendationTaskTable from "@/app/(Dashboard)/watchlist/components/RecommendationTaskTable";
+import { RecommendedTaskContext } from "../provider/RecommendedTaskProvider";
 
 const CellAction = ({
   task,
@@ -24,6 +27,8 @@ const CellAction = ({
   rejectTask: (id: string) => void;
   approveTaskLoading: boolean;
 }) => {
+  const { staticTasks } = useContext(RecommendedTaskContext);
+  console.log(staticTasks);
   if (approveTaskLoading) return <Spinner size={"default"} />;
   return (
     <DropdownMenu>

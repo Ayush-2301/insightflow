@@ -80,6 +80,7 @@ export const getMasterKeywords = async () => {
     );
     if (response.ok) {
       const res: Masterkeywords[] = await response.json();
+      console.log("masterkeywords", res);
 
       return res;
     }

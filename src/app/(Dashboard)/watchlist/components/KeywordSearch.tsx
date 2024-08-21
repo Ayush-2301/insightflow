@@ -6,8 +6,10 @@ import { Keyword } from "@/lib/types";
 import { debounce } from "@/lib/utils";
 import { searchKeyword } from "@/lib/actions";
 import { Spinner } from "@/components/Spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface KeywordSearchProps {
+  loadingSuggestions: boolean;
   onSelect: (keyword: Keyword) => void;
   selectedKeywords: Keyword[];
   suggestedKeywords: Keyword[] | undefined;
@@ -15,6 +17,7 @@ interface KeywordSearchProps {
 }
 
 const KeywordSearch: React.FC<KeywordSearchProps> = ({
+  loadingSuggestions,
   onSelect,
   selectedKeywords,
   suggestedKeywords,
@@ -168,42 +171,68 @@ const KeywordSearch: React.FC<KeywordSearchProps> = ({
           Add &quot;{query}&quot; as custom keyword
         </Button>
       )}
-      {suggestedKeywords && (
-        <div className="mt-4">
-          <p className="text-lg font-semibold mb-1">Suggested Keywords:</p>
-          <div className="flex flex-wrap gap-2 transition-all duration-500">
-            {displayedKeywords?.map((keyword) => (
-              <span
-                key={keyword.id}
-                onClick={() => handleSelect(keyword)}
-                className={`px-2 py-1 rounded-full cursor-pointer capitalize ${
-                  selectedKeywords.some(
-                    (selected) => selected.id === keyword.id
-                  )
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-gray-200 text-gray-700"
-                }`}
-                style={{ display: "inline-block" }}
-              >
-                {keyword.keyword}
-              </span>
-            ))}
-          </div>
-          {suggestedKeywords.length > 10 && (
-            <Button
-              type="button"
-              disabled={isLoading}
-              onClick={toggleShowMore}
-              variant={"outline"}
-              className="mt-3 text-blue-500 hover:underline focus:outline-none"
-            >
-              {showMore ? "View Less" : "View More"}
-            </Button>
+      {loadingSuggestions ? (
+        <SuggestedKeywordsSkeleton />
+      ) : (
+        <>
+          {suggestedKeywords && (
+            <div className="mt-4">
+              <p className="text-lg font-semibold mb-1">Suggested Keywords:</p>
+              <div className="flex flex-wrap gap-2 transition-all duration-500">
+                {displayedKeywords?.map((keyword) => (
+                  <span
+                    key={keyword.id}
+                    onClick={() => handleSelect(keyword)}
+                    className={`px-2 py-1 rounded-full cursor-pointer capitalize ${
+                      selectedKeywords.some(
+                        (selected) => selected.id === keyword.id
+                      )
+                        ? "bg-blue-100 text-blue-700"
+                        : "bg-gray-200 text-gray-700"
+                    }`}
+                    style={{ display: "inline-block" }}
+                  >
+                    {keyword.keyword}
+                  </span>
+                ))}
+              </div>
+              {suggestedKeywords.length > 10 && (
+                <Button
+                  type="button"
+                  disabled={isLoading}
+                  onClick={toggleShowMore}
+                  variant={"outline"}
+                  className="mt-3 text-blue-500 hover:underline focus:outline-none"
+                >
+                  {showMore ? "View Less" : "View More"}
+                </Button>
+              )}
+            </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );
 };
 
 export default KeywordSearch;
+
+const getRandomWidth = () => {
+  const min = 120;
+  const max = 200;
+  return `${Math.floor(Math.random() * (max - min + 1)) + min}px`;
+};
+
+const SuggestedKeywordsSkeleton = () => {
+  return (
+    <div className="mt-8 flex flex-wrap gap-3 w-full">
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((_, index) => (
+        <Skeleton
+          key={index}
+          className="h-[35px] rounded-full"
+          style={{ width: getRandomWidth() }}
+        />
+      ))}
+    </div>
+  );
+};

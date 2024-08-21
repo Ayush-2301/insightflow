@@ -16,7 +16,7 @@ import KeywordSearch from "./KeywordSearch";
 import { Trash, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/custom-input";
-import type { Task, Watchlist } from "@/lib/types";
+import type { Company, Task, Watchlist } from "@/lib/types";
 import { useParams, useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { Keyword } from "@/lib/types";
@@ -27,6 +27,7 @@ import {
 } from "@/lib/actions/watchlist";
 import { Spinner } from "@/components/Spinner";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getMasterKeywords } from "@/lib/actions";
 
 const WatchlistForm = ({
   initialData,
@@ -117,30 +118,66 @@ const WatchlistForm = ({
       titleInputRef.current.focus();
     }
   }, []);
-  useEffect(() => {
-    const channel = supabase
-      .channel("suggestedKeywords")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "master_keywords",
-        },
-        (payload) => {
-          const newKeyword = payload.new as Keyword;
-          setSuggestedKeywords((prev) =>
-            prev ? [...prev, newKeyword] : [newKeyword]
-          );
-          setLoadingSuggestions(false);
-        }
-      )
-      .subscribe();
 
+  useEffect(() => {
+    const channel = supabase.channel("keywords-broadcast");
+
+    channel.on(
+      "broadcast",
+      { event: "keyword_generation_complete" },
+      async (payload) => {
+        if (payload.payload.user_id === userID) {
+          try {
+            const response = await getMasterKeywords();
+            if (response && response.length > 0) {
+              const suggestedKeywords: Keyword[] | undefined = response.map(
+                (item) => ({
+                  id: item.id,
+                  keyword: item.keyword,
+                  volume: "0",
+                  approve: item.approve,
+                })
+              );
+              setSuggestedKeywords(suggestedKeywords);
+              setLoadingSuggestions(false);
+            }
+          } catch (error) {
+            console.error("Error fetching keywords:", error);
+          }
+        }
+      }
+    );
+
+    channel.subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase]);
+  }, [supabase, userID]);
+
+  // useEffect(() => {
+  //   const channel = supabase
+  //     .channel("suggestedKeywords")
+  //     .on(
+  //       "postgres_changes",
+  //       {
+  //         event: "INSERT",
+  //         schema: "public",
+  //         table: "master_keywords",
+  //       },
+  //       (payload) => {
+  //         const newKeyword = payload.new as Keyword;
+  //         setSuggestedKeywords((prev) =>
+  //           prev ? [...prev, newKeyword] : [newKeyword]
+  //         );
+  //         setLoadingSuggestions(false);
+  //       }
+  //     )
+  //     .subscribe();
+
+  //   return () => {
+  //     supabase.removeChannel(channel);
+  //   };
+  // }, [supabase]);
 
   const handleSaveAction = () => {
     const newWatchList: WatchlistForm = {
@@ -285,16 +322,13 @@ const WatchlistForm = ({
                   )}
                   <FormControl>
                     <div className="flex justify-between w-full gap-3">
-                      {loadingSuggestions ? (
-                        <Spinner size="sm" />
-                      ) : (
-                        <KeywordSearch
-                          onSelect={handleSelectKeyword}
-                          selectedKeywords={field.value}
-                          suggestedKeywords={suggestedKeywords}
-                          isLoading={isLoading}
-                        />
-                      )}
+                      <KeywordSearch
+                        loadingSuggestions={loadingSuggestions}
+                        onSelect={handleSelectKeyword}
+                        selectedKeywords={field.value}
+                        suggestedKeywords={suggestedKeywords}
+                        isLoading={isLoading}
+                      />
                     </div>
                   </FormControl>
                   <p className=" text-red-500">

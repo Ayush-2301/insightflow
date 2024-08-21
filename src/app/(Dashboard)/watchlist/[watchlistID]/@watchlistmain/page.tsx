@@ -45,8 +45,11 @@
 
 import { getWatchlist } from "@/lib/actions/watchlist";
 import { Keyword } from "@/lib/types";
+import type { Company as CompanyType } from "@/lib/types";
 import WatchlistForm from "../../components/WatchlistForm";
 import { getMasterKeywords, readUser } from "@/lib/actions";
+import { getCompany } from "@/lib/actions/company";
+import { AlertModal } from "../../components/AlertModal";
 
 const watchlistMain = async ({
   params,
@@ -55,11 +58,27 @@ const watchlistMain = async ({
 }) => {
   const id = params.watchlistID;
 
-  const [userResponse, initialData, keywordResponse] = await Promise.all([
-    readUser(),
-    id === "new" ? undefined : getWatchlist({ id }),
-    getMasterKeywords(),
-  ]);
+  const [userResponse, initialData, company_info, keywordResponse] =
+    await Promise.all([
+      readUser(),
+      id === "new" ? undefined : getWatchlist({ id }),
+      id === "new" ? getCompany() : undefined,
+      getMasterKeywords(),
+    ]);
+
+  const isValidCompany = (company: any): company is CompanyType => {
+    return company && !("error" in company) && !("message" in company);
+  };
+  const company = isValidCompany(company_info) ? company_info : undefined;
+  const isEmptyObject = (obj: any) => {
+    return Object.keys(obj).length === 0 && obj.constructor === Object;
+  };
+
+  const companyData = company && isEmptyObject(company) ? undefined : company;
+
+  if (!companyData) {
+    return <AlertModal />;
+  }
 
   const userID = userResponse.data.user?.id;
 
