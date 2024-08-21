@@ -128,6 +128,7 @@ const WatchlistForm = ({
       async (payload) => {
         if (payload.payload.user_id === userID) {
           try {
+            console.log("response received");
             const response = await getMasterKeywords();
             if (response && response.length > 0) {
               const suggestedKeywords: Keyword[] | undefined = response.map(
