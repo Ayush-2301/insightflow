@@ -75,7 +75,7 @@ export const getMasterKeywords = async () => {
         headers: {
           Authorization: access_token,
         },
-        cache: "no-cache",
+        cache: "no-store",
       }
     );
     if (response.ok) {
