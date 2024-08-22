@@ -23,7 +23,7 @@ const page = () => {
 
 export default page;
 
-export const ProfileSkeleton = () => {
+const ProfileSkeleton = () => {
   return (
     <div className="flex flex-col  space-y-6">
       <div className="flex flex-col space-y-2">
