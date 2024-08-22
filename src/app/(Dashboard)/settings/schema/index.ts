@@ -11,3 +11,9 @@ export const updateTrello = z.object({
   boardTitle: z.string(),
 });
 export type UpdateTrelloForm = z.infer<typeof updateTrello>;
+
+export const profileSchema = z.object({
+  username: z.string().min(1, "Please enter yout username"),
+});
+
+export type ProfileForm = z.infer<typeof profileSchema>;

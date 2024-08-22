@@ -11,14 +11,20 @@ const SettingsSidebar = () => {
     <nav className="grid gap-4 text-base text-muted-foreground">
       <Link
         href="/settings"
-        className={cn(path === "/settings" && `font-semibold text-primary`)}
+        className={cn(
+          path === "/settings" &&
+            `font-semibold text-primary bg-gray-100 rounded-md`,
+          "px-3 py-2"
+        )}
       >
         Profile
       </Link>
       <Link
         href="/settings/integrations"
         className={cn(
-          path === "/settings/integrations" && `font-semibold text-primary`
+          path === "/settings/integrations" &&
+            `font-semibold text-primary  bg-gray-100 rounded-md`,
+          "px-3 py-2"
         )}
       >
         Integrations

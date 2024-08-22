@@ -1,27 +1,32 @@
 import { getCompany } from "@/lib/actions/company";
 import { Company as CompanyType } from "@/lib/types";
-import { getGoals, readUser } from "@/lib/actions";
+import { getGoals } from "@/lib/actions";
 import Company from "../components/Company";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Suspense } from "react";
+import { getProfile } from "@/lib/actions/profile";
 
 const CompanyServer = async () => {
-  const [{ data: userData }, companyData, goals] = await Promise.all([
-    readUser(),
+  const [profile, companyData, goals] = await Promise.all([
+    getProfile(),
     getCompany(),
     getGoals(),
   ]);
 
+  let profiledata = undefined;
+  if (!("error" in profile)) {
+    profiledata = profile;
+  }
   const company = isValidCompany(companyData) ? companyData : undefined;
 
   return (
     <div className="mt-6">
       <h2 className="text-3xl font-semibold tracking-tight">
-        Hello👋 {userData?.user?.user_metadata.full_name}
+        Hello👋 {profiledata?.username}
       </h2>
       <Suspense fallback={<PreviewSkeleton />}>
-        {userData?.user && (
-          <Company userID={userData.user.id} company={company} goals={goals} />
+        {profiledata?.username && (
+          <Company userID={profiledata.id} company={company} goals={goals} />
         )}
       </Suspense>
     </div>

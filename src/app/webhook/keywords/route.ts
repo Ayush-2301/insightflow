@@ -22,7 +22,6 @@ export async function POST(request: Request) {
         payload: { user_id: data.user_id },
       });
     });
-    revalidateTag("master_keywords");
   } catch (error) {
     return new Response(`Webhook error`, {
       status: 400,

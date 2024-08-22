@@ -116,3 +116,10 @@ export interface Trello {
   list_id: string | null;
   boardTitle: string;
 }
+
+export interface Profile {
+  id: string;
+  username: string;
+  email: string;
+  created_at: Date;
+}
