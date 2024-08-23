@@ -21,6 +21,7 @@ import { Pencil, PencilLine } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { updateProfile } from "@/lib/actions/profile";
 import { Spinner } from "@/components/Spinner";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const ProfileForm = ({ initialData }: { initialData: Profile }) => {
   const router = useRouter();
@@ -57,6 +58,13 @@ const ProfileForm = ({ initialData }: { initialData: Profile }) => {
     });
     setIsLoading(false);
     setIsEdit(false);
+  }
+
+  async function handleResetPassword() {
+    const supabase = createSupabaseBrowserClient();
+    await supabase.auth.resetPasswordForEmail(initialData.email, {
+      redirectTo: "http://localhost:3000/change-password",
+    });
   }
 
   return (
@@ -110,10 +118,11 @@ const ProfileForm = ({ initialData }: { initialData: Profile }) => {
       )}
       <div className="flex flex-col space-y-2">
         <Label className=" text-lg">Email</Label>
-
         <p className=" text-muted-foreground ">{initialData.email}</p>
       </div>
-      <div></div>
+      <Button variant={"outline"} onClick={handleResetPassword}>
+        Reset Password
+      </Button>
     </div>
   );
 };
