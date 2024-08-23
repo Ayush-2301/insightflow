@@ -21,6 +21,8 @@ export async function POST(request: Request) {
         event: "keyword_generation_complete",
         payload: { user_id: data.user_id },
       });
+      revalidateTag("masterkeywords");
+      channel.unsubscribe();
     });
   } catch (error) {
     return new Response(`Webhook error`, {

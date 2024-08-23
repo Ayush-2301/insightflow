@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { type Company } from "../types";
 import { CompanyForm } from "@/app/(Dashboard)/(home)/schema";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { getSession } from "./index";
 
 const SERVER_URL = process.env.SERVER_URL;
@@ -67,6 +67,7 @@ export const createCompany = async ({
       return error;
     }
     const res: Company = await response.json();
+    revalidateTag("masterkeywords");
     revalidateTag("company_info");
 
     return res;
@@ -103,6 +104,7 @@ export const updateCompany = async ({
       return error;
     }
     const res: Company = await response.json();
+    revalidateTag("masterkeywords");
     revalidateTag("company_info");
 
     return res;
