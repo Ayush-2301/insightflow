@@ -22,7 +22,6 @@ export async function POST(request: Request) {
         payload: { user_id: data.user_id },
       });
       revalidateTag("masterkeywords");
-      channel.unsubscribe();
     });
   } catch (error) {
     return new Response(`Webhook error`, {
