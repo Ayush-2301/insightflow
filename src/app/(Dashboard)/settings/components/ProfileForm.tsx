@@ -23,9 +23,9 @@ import { Spinner } from "@/components/Spinner";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const ProfileForm = ({ initialData }: { initialData: Profile }) => {
-  const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [resetPasswordLoading, setResetPasswordLoading] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const form = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
@@ -60,9 +60,10 @@ const ProfileForm = ({ initialData }: { initialData: Profile }) => {
   }
 
   async function handleResetPassword() {
+    setResetPasswordLoading(true);
     const supabase = createSupabaseBrowserClient();
     const res = await supabase.auth.resetPasswordForEmail(initialData.email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/change-password`,
+      redirectTo: "https://insightflow.vercel.app/change-password",
     });
     if (res) {
       toast({
@@ -70,6 +71,7 @@ const ProfileForm = ({ initialData }: { initialData: Profile }) => {
         description: "Check your email to reset your password.",
       });
     }
+    setResetPasswordLoading(false);
   }
 
   return (
@@ -126,7 +128,7 @@ const ProfileForm = ({ initialData }: { initialData: Profile }) => {
         <p className=" text-muted-foreground ">{initialData.email}</p>
       </div>
       <Button variant={"outline"} onClick={handleResetPassword}>
-        Reset Password
+        {resetPasswordLoading ? <Spinner /> : <>Reset Password</>}
       </Button>
     </div>
   );
