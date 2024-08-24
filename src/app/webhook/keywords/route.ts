@@ -13,6 +13,7 @@ export async function POST(request: Request) {
     const channel = supabase.channel(`keywords-${data.user_id}`);
 
     channel.subscribe((status) => {
+      console.log(`Channel status: ${status}`);
       if (status !== "SUBSCRIBED") {
         return null;
       }
