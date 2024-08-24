@@ -16,7 +16,7 @@ import KeywordSearch from "./KeywordSearch";
 import { Trash, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/custom-input";
-import type { Company, Task, Watchlist } from "@/lib/types";
+import type { Watchlist } from "@/lib/types";
 import { useParams, useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { Keyword } from "@/lib/types";
@@ -32,11 +32,9 @@ import { getMasterKeywords } from "@/lib/actions";
 const WatchlistForm = ({
   initialData,
   userID,
-  initialsuggestedKeywords,
 }: {
   initialData: Watchlist | undefined;
   userID: string;
-  initialsuggestedKeywords: Keyword[] | undefined;
 }) => {
   const { toast } = useToast();
   const params: {
@@ -59,10 +57,8 @@ const WatchlistForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const [suggestedKeywords, setSuggestedKeywords] = useState<
     Keyword[] | undefined
-  >(initialsuggestedKeywords);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(
-    initialsuggestedKeywords?.length === 0
-  );
+  >();
+  const [loadingSuggestions, setLoadingSuggestions] = useState(true);
   const form = useForm<WatchlistForm>({
     resolver: zodResolver(watchlistFormSchema),
     defaultValues,
@@ -71,7 +67,6 @@ const WatchlistForm = ({
   console.log("before suggested keywords", suggestedKeywords);
   console.log("before suggested keywords loading", loadingSuggestions);
   const error = form.formState.errors;
-  const supabase = createSupabaseBrowserClient();
 
   async function update({
     newWatchList,
@@ -115,79 +110,39 @@ const WatchlistForm = ({
     }
   }
 
-  useEffect(() => {
-    if (titleInputRef.current) {
-      titleInputRef.current.focus();
-    }
-  }, []);
-
-  useEffect(() => {
-    const channel = supabase.channel("keywords-broadcast");
-
+  const registerBroadcastEvent = async ({ userID }: { userID: string }) => {
+    const supabase = createSupabaseBrowserClient();
+    const channel = supabase.channel(`keywords-${userID}`);
     channel.on(
       "broadcast",
-      { event: "keyword_generation_complete" },
-      async (payload) => {
+      {
+        event: "keywords.generated",
+      },
+      (payload) => {
         console.log(payload);
         if (payload.payload.user_id === userID) {
-          try {
-            console.log("response received");
-            const response = await getMasterKeywords();
-            if (response && response.length > 0) {
-              const suggestedKeywords: Keyword[] | undefined = response.map(
-                (item) => ({
-                  id: item.id,
-                  keyword: item.keyword,
-                  volume: "0",
-                  approve: item.approve,
-                })
-              );
-
-              setSuggestedKeywords(suggestedKeywords);
-              setLoadingSuggestions(false);
-              console.log("after suggested keywords", suggestedKeywords);
-              console.log(
-                "after suggested keywords loading",
-                loadingSuggestions
-              );
-            }
-          } catch (error) {
-            console.error("Error fetching keywords:", error);
-          }
+          getKeywords();
         }
       }
     );
+    channel.subscribe((e) => console.log("Subscribe to Channel", e));
+  };
 
-    channel.subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [supabase, userID]);
+  async function getKeywords() {
+    console.log("called");
+    const keywordResponse = await getMasterKeywords();
 
-  // useEffect(() => {
-  //   const channel = supabase
-  //     .channel("suggestedKeywords")
-  //     .on(
-  //       "postgres_changes",
-  //       {
-  //         event: "INSERT",
-  //         schema: "public",
-  //         table: "master_keywords",
-  //       },
-  //       (payload) => {
-  //         const newKeyword = payload.new as Keyword;
-  //         setSuggestedKeywords((prev) =>
-  //           prev ? [...prev, newKeyword] : [newKeyword]
-  //         );
-  //         setLoadingSuggestions(false);
-  //       }
-  //     )
-  //     .subscribe();
-
-  //   return () => {
-  //     supabase.removeChannel(channel);
-  //   };
-  // }, [supabase]);
+    const suggestedKeywords: Keyword[] | undefined = keywordResponse?.map(
+      (item) => ({
+        id: item.id,
+        keyword: item.keyword,
+        volume: "0",
+        approve: item.approve,
+      })
+    );
+    setLoadingSuggestions(suggestedKeywords?.length === 0);
+    setSuggestedKeywords(suggestedKeywords);
+  }
 
   const handleSaveAction = () => {
     const newWatchList: WatchlistForm = {
@@ -248,6 +203,17 @@ const WatchlistForm = ({
       currentKeywords.filter((keyword) => keyword.id !== keywordId)
     );
   };
+
+  useEffect(() => {
+    getKeywords();
+    if (titleInputRef.current) {
+      titleInputRef.current.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    registerBroadcastEvent({ userID });
+  }, [userID]);
 
   return (
     <>

@@ -58,13 +58,11 @@ const watchlistMain = async ({
 }) => {
   const id = params.watchlistID;
 
-  const [userResponse, initialData, company_info, keywordResponse] =
-    await Promise.all([
-      readUser(),
-      id === "new" ? undefined : getWatchlist({ id }),
-      id === "new" ? getCompany() : undefined,
-      getMasterKeywords(),
-    ]);
+  const [userResponse, initialData, company_info] = await Promise.all([
+    readUser(),
+    id === "new" ? undefined : getWatchlist({ id }),
+    getCompany(),
+  ]);
 
   const isValidCompany = (company: any): company is CompanyType => {
     return company && !("error" in company) && !("message" in company);
@@ -82,24 +80,9 @@ const watchlistMain = async ({
 
   const userID = userResponse.data.user?.id;
 
-  const suggestedKeywords: Keyword[] | undefined = keywordResponse?.map(
-    (item) => ({
-      id: item.id,
-      keyword: item.keyword,
-      volume: "0",
-      approve: item.approve,
-    })
-  );
-
   return (
     <div>
-      {userID && (
-        <WatchlistForm
-          userID={userID}
-          initialData={initialData}
-          initialsuggestedKeywords={suggestedKeywords}
-        />
-      )}
+      {userID && <WatchlistForm userID={userID} initialData={initialData} />}
     </div>
   );
 };

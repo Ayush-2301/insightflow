@@ -50,6 +50,7 @@ export async function searchKeyword({
 export const getGoals = async () => {
   const { access_token } = await getSession();
   if (!access_token) redirect("/auth");
+  console.log(access_token);
   const response = await fetch(`${SERVER_URL}/goals`, {
     method: "GET",
     headers: {
@@ -75,10 +76,7 @@ export const getMasterKeywords = async () => {
         headers: {
           Authorization: access_token,
         },
-        next: {
-          revalidate: 3600,
-          tags: ["masterkeywords"],
-        },
+        cache: "no-store",
       }
     );
     if (response.ok) {

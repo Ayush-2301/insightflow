@@ -88,6 +88,7 @@ export const updateCompany = async ({
 
     if (!access_token) redirect("/auth");
     const formData = { id, ...newCompany };
+    console.log(formData);
 
     const response = await fetch(`${SERVER_URL}/company_info`, {
       method: "PUT",

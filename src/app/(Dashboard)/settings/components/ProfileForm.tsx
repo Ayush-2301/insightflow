@@ -63,7 +63,7 @@ const ProfileForm = ({ initialData }: { initialData: Profile }) => {
   async function handleResetPassword() {
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.resetPasswordForEmail(initialData.email, {
-      redirectTo: "http://localhost:3000/change-password",
+      redirectTo: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/change-password`,
     });
   }
 

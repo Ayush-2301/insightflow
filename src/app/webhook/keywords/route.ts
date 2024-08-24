@@ -5,20 +5,20 @@ export async function POST(request: Request) {
   try {
     const supabase = createSupabaseServerClient();
     const response = await request.text();
-    console.log("webhook response", response);
     const data: {
       user_id: string;
     } = JSON.parse(response);
     console.log(data.user_id);
 
-    const channel = supabase.channel("keywords-broadcast");
+    const channel = supabase.channel(`keywords-${data.user_id}`);
+
     channel.subscribe((status) => {
       if (status !== "SUBSCRIBED") {
         return null;
       }
       channel.send({
         type: "broadcast",
-        event: "keyword_generation_complete",
+        event: "keywords.generated",
         payload: { user_id: data.user_id },
       });
       revalidateTag("masterkeywords");
