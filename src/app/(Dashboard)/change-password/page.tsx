@@ -11,15 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { readUser } from "@/lib/actions";
 import { useToast } from "@/components/ui/use-toast";
-import { revalidatePath } from "next/cache";
-import { Layout } from "lucide-react";
 import { Spinner } from "@/components/Spinner";
 
 const ChangePassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const router = useRouter();
-  const supabase = createSupabaseBrowserClient();
+
   const { toast } = useToast();
   const form = useForm<ChangePasswordForm>({
     resolver: zodResolver(changePasswordSchema),
@@ -31,20 +29,19 @@ const ChangePassword = () => {
 
   async function onSubmit(value: ChangePasswordForm) {
     setIsLoading(true);
+    const supabase = createSupabaseBrowserClient();
     const res = await supabase.auth.updateUser({ password: value.newPassword });
-    toast({
-      title: "Password updated",
-      description: "Your password has been updated successfully.",
-    });
     if (res) {
+      toast({
+        title: "Password updated",
+        description: "Your password has been updated successfully.",
+      });
       await supabase.auth.signOut();
       setIsLoading(false);
       toast({
         title: "Logged out",
         description: "You have been logged out. Please log in again.",
       });
-
-      revalidatePath("/", "layout");
       router.push("/auth");
     }
     setIsLoading(false);
