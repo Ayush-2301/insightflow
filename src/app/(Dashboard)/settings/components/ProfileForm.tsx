@@ -59,11 +59,18 @@ const ProfileForm = ({ initialData }: { initialData: Profile }) => {
     setIsLoading(false);
     setIsEdit(false);
   }
+  const getURL = () => {
+    let url = process?.env?.NEXT_PUBLIC_VERCEL_URL ?? "http://localhost:3000/";
+
+    url = url.startsWith("http") ? url : `https://${url}`;
+    url = url.endsWith("/") ? url : `${url}/`;
+    return url;
+  };
 
   async function handleResetPassword() {
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.resetPasswordForEmail(initialData.email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/change-password`,
+      redirectTo: `${getURL()}/change-password`,
     });
   }
 
