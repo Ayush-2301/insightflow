@@ -63,7 +63,7 @@ const ProfileForm = ({ initialData }: { initialData: Profile }) => {
   async function handleResetPassword() {
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.resetPasswordForEmail(initialData.email, {
-      redirectTo: `https://insightflow.vercel.app/change-password`,
+      redirectTo: "https://insightflow.vercel.app/change-password",
     });
   }
 
