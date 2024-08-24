@@ -61,9 +61,15 @@ const ProfileForm = ({ initialData }: { initialData: Profile }) => {
 
   async function handleResetPassword() {
     const supabase = createSupabaseBrowserClient();
-    await supabase.auth.resetPasswordForEmail(initialData.email, {
+    const res = await supabase.auth.resetPasswordForEmail(initialData.email, {
       redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/change-password`,
     });
+    if (res) {
+      toast({
+        title: "Password reset email sent",
+        description: "Check your email to reset your password.",
+      });
+    }
   }
 
   return (
