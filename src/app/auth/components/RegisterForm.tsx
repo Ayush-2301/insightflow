@@ -13,12 +13,17 @@ import { registerFormSchema } from "@/lib/schema";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { signUpWithEmailAndPassword } from "../actions";
+import { Box } from "@/components/ui/box";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 interface RegisterFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 type FormData = z.infer<typeof registerFormSchema>;
 
 export function RegisterForm({ className, ...props }: RegisterFormProps) {
   const router = useRouter();
+  const [passwordVisibility, setPasswordVisibility] = React.useState(false);
+  const [confirmPasswordVisibility, setConfirmPasswordVisibility] =
+    React.useState(false);
   const { toast } = useToast();
   const {
     handleSubmit,
@@ -52,30 +57,7 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
       }
     } catch (error) {
       reset();
-      console.log(error);
     }
-    // try {
-    //   const token = await handleLogin(data);
-    //   reset();
-    //   if (token.error == null) {
-    //     router.push("/dashboard");
-    //     router.refresh();
-    //     toast({
-    //       variant: "default",
-    //       title: "Welcome back!.",
-    //       description: "Login Successful",
-    //     });
-    //   } else
-    //     toast({
-    //       variant: "destructive",
-    //       title: "Uh oh! Something went wrong.",
-    //       description: token.error,
-    //       action: <ToastAction altText="Try again">Try again</ToastAction>,
-    //     });
-    // } catch (error) {
-    //   reset();
-    //   console.log("login error", error);
-    // }
   }
 
   return (
@@ -118,13 +100,26 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
             </div>
             <div className="flex flex-col space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                {...register("password", { required: true })}
-                id="password"
-                placeholder="Password"
-                type="password"
-                disabled={isSubmitting}
-              />
+              <Box className="relative">
+                <Input
+                  {...register("password", { required: true })}
+                  id="password"
+                  placeholder="Password"
+                  type={passwordVisibility ? "text" : "password"}
+                  disabled={isSubmitting}
+                />
+                <Box
+                  className="absolute inset-y-0 right-0 flex cursor-pointer items-center p-3 text-muted-foreground"
+                  onClick={() => setPasswordVisibility(!passwordVisibility)}
+                >
+                  {React.createElement(
+                    passwordVisibility ? EyeOffIcon : EyeIcon,
+                    {
+                      className: "h-5 w-5",
+                    }
+                  )}
+                </Box>
+              </Box>
               {errors?.password && (
                 <p className="text-red-600 text-sm">
                   {errors?.password?.message}
@@ -133,13 +128,28 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
             </div>
             <div className="flex flex-col space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                {...register("confirmPassword", { required: true })}
-                id="confirmPassword"
-                placeholder="Re-write password"
-                type="password"
-                disabled={isSubmitting}
-              />
+              <Box className="relative">
+                <Input
+                  {...register("confirmPassword", { required: true })}
+                  id="confirmPassword"
+                  placeholder="Re-write password"
+                  type={confirmPasswordVisibility ? "text" : "password"}
+                  disabled={isSubmitting}
+                />
+                <Box
+                  className="absolute inset-y-0 right-0 flex cursor-pointer items-center p-3 text-muted-foreground"
+                  onClick={() =>
+                    setConfirmPasswordVisibility(!confirmPasswordVisibility)
+                  }
+                >
+                  {React.createElement(
+                    confirmPasswordVisibility ? EyeOffIcon : EyeIcon,
+                    {
+                      className: "h-5 w-5",
+                    }
+                  )}
+                </Box>
+              </Box>
               {errors?.confirmPassword && (
                 <p className="text-red-600 text-sm">
                   {errors?.confirmPassword?.message}

@@ -3,19 +3,32 @@
 import { useForm } from "react-hook-form";
 import { ChangePasswordForm, changePasswordSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { createElement, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { readUser } from "@/lib/actions";
 import { useToast } from "@/components/ui/use-toast";
 import { Spinner } from "@/components/Spinner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Box } from "@/components/ui/box";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 const ChangePassword = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [userLoading, setUserLoading] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const [passwordVisibility, setPasswordVisibility] = useState(false);
+  const [confirmPasswordVisibility, setConfirmPasswordVisibility] =
+    useState(false);
   const router = useRouter();
 
   const { toast } = useToast();
@@ -49,8 +62,10 @@ const ChangePassword = () => {
 
   useEffect(() => {
     async function getUser() {
+      setUserLoading(true);
       const user = await readUser();
       if (user.data.user?.email) setUserEmail(user.data.user?.email);
+      setUserLoading(false);
     }
     getUser();
   }, []);
@@ -58,10 +73,15 @@ const ChangePassword = () => {
   return (
     <div className="flex flex-col items-center justify-center w-full h-full">
       <div className="flex flex-col space-y-2">
-        <h2 className=" text-3xl">Reset account Password</h2>
-        <p className=" text-muted-foreground">
-          Enter a new password for {userEmail}
-        </p>
+        <h2 className=" text-3xl font-medium">Reset account Password</h2>
+        <div className=" text-muted-foreground text-center  flex items-center justify-center space-x-1">
+          <span>Enter a new password for</span>
+          {userLoading ? (
+            <Skeleton className="w-[150px] h-[30px] " />
+          ) : (
+            <span>{userEmail}</span>
+          )}
+        </div>
       </div>
       <Form {...form}>
         <form
@@ -73,12 +93,27 @@ const ChangePassword = () => {
             name="newPassword"
             render={({ field }) => (
               <FormItem>
+                <FormLabel>New Password</FormLabel>
                 <FormControl>
-                  <Input
-                    disabled={isLoading}
-                    {...field}
-                    placeholder="New Password"
-                  />
+                  <Box className="relative">
+                    <Input
+                      disabled={isLoading}
+                      {...field}
+                      placeholder="New Password"
+                      type={passwordVisibility ? "text" : "password"}
+                    />
+                    <Box
+                      className="absolute inset-y-0 right-0 flex cursor-pointer items-center p-3 text-muted-foreground"
+                      onClick={() => setPasswordVisibility(!passwordVisibility)}
+                    >
+                      {createElement(
+                        passwordVisibility ? EyeOffIcon : EyeIcon,
+                        {
+                          className: "h-6 w-6",
+                        }
+                      )}
+                    </Box>
+                  </Box>
                 </FormControl>
               </FormItem>
             )}
@@ -88,12 +123,29 @@ const ChangePassword = () => {
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
+                <FormLabel>Confirm Password</FormLabel>
                 <FormControl>
-                  <Input
-                    disabled={isLoading}
-                    {...field}
-                    placeholder="Confirm New Password"
-                  />
+                  <Box className="relative">
+                    <Input
+                      disabled={isLoading}
+                      {...field}
+                      placeholder="Confirm New Password"
+                      type={confirmPasswordVisibility ? "text" : "password"}
+                    />
+                    <Box
+                      className="absolute inset-y-0 right-0 flex cursor-pointer items-center p-3 text-muted-foreground"
+                      onClick={() =>
+                        setConfirmPasswordVisibility(!confirmPasswordVisibility)
+                      }
+                    >
+                      {createElement(
+                        confirmPasswordVisibility ? EyeOffIcon : EyeIcon,
+                        {
+                          className: "h-6 w-6",
+                        }
+                      )}
+                    </Box>
+                  </Box>
                 </FormControl>
               </FormItem>
             )}

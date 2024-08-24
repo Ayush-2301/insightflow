@@ -1,5 +1,4 @@
 "use client";
-
 import { Profile } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -17,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Pencil, PencilLine } from "lucide-react";
+import { PencilLine } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { updateProfile } from "@/lib/actions/profile";
 import { Spinner } from "@/components/Spinner";
@@ -63,7 +62,7 @@ const ProfileForm = ({ initialData }: { initialData: Profile }) => {
   async function handleResetPassword() {
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.resetPasswordForEmail(initialData.email, {
-      redirectTo: "https://insightflow.vercel.app/change-password",
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/change-password`,
     });
   }
 
