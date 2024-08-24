@@ -59,18 +59,11 @@ const ProfileForm = ({ initialData }: { initialData: Profile }) => {
     setIsLoading(false);
     setIsEdit(false);
   }
-  const getURL = () => {
-    let url = process?.env?.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000/";
-
-    url = url.startsWith("http") ? url : `https://${url}`;
-    url = url.endsWith("/") ? url : `${url}/`;
-    return url;
-  };
 
   async function handleResetPassword() {
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.resetPasswordForEmail(initialData.email, {
-      redirectTo: `${getURL()}/change-password`,
+      redirectTo: `https://insightflow.vercel.app/change-password`,
     });
   }
 
