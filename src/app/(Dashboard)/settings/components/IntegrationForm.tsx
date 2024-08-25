@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 const TRELLO_API_KEY = process.env.NEXT_PUBLIC_TRELLO_API_KEY;
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 import {
   Tooltip,
@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/form";
 import { Box } from "@/components/ui/box";
 
-import { useState, createElement } from "react";
+import { useState, createElement, useEffect } from "react";
 import { EllipsisVertical, EyeIcon, EyeOffIcon, Verified } from "lucide-react";
 import {
   AccessTokenForm,
@@ -65,6 +65,7 @@ const IntegrationForm = ({
   const [showUpdateSettings, setShowUpdateSettings] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
   const form = useForm<z.infer<typeof accessTokenSchema>>({
     resolver: zodResolver(accessTokenSchema),
     defaultValues: {
@@ -79,6 +80,42 @@ const IntegrationForm = ({
       boardTitle: boardTitle || "",
     },
   });
+
+  const accessTokenValue = useWatch({
+    control: form.control,
+    name: "access_token",
+  });
+
+  const updateAccessTokenValue = useWatch({
+    control: updateTrelloForm.control,
+    name: "accesstoken",
+  });
+  useEffect(() => {
+    if (accessTokenValue) {
+      validateToken(accessTokenValue);
+    } else {
+      setIsValidToken(null);
+    }
+  }, [accessTokenValue]);
+
+  useEffect(() => {
+    if (updateAccessTokenValue) {
+      validateToken(updateAccessTokenValue);
+    } else {
+      setIsValidToken(null);
+    }
+  }, [updateAccessTokenValue]);
+
+  const validateToken = async (token: string) => {
+    try {
+      const response = await fetch(
+        `https://api.trello.com/1/tokens/${token}?key=${TRELLO_API_KEY}&token=${token}`
+      );
+      setIsValidToken(response.status === 200);
+    } catch (error) {
+      setIsValidToken(false);
+    }
+  };
 
   async function onSubmit(value: AccessTokenForm) {
     setLoading(true);
@@ -205,7 +242,13 @@ const IntegrationForm = ({
                               disabled={isLoading}
                               type={passwordVisibility ? "text" : "password"}
                               placeholder={"Access Token"}
-                              className={`pr-12 `}
+                              className={`pr-12 ${
+                                isValidToken === false
+                                  ? "ring-offset-red-500 border-red-500"
+                                  : isValidToken === true
+                                  ? "ring-offset-green-500 border-green-500"
+                                  : ""
+                              }`}
                             />
                             <Box
                               className="absolute inset-y-0 right-0 flex cursor-pointer items-center p-3 text-muted-foreground"
@@ -223,6 +266,12 @@ const IntegrationForm = ({
                           </Box>
                         </FormControl>
                         <FormDescription>
+                          {isValidToken === false && (
+                            <p className="text-red-500">Invalid Token</p>
+                          )}
+                          {isValidToken === true && (
+                            <p className="text-green-500">Token Verified</p>
+                          )}
                           Paste the copied access token to allow insightflow to
                           connect with your trello account.
                         </FormDescription>
@@ -356,7 +405,13 @@ const IntegrationForm = ({
                                     passwordVisibility ? "text" : "password"
                                   }
                                   placeholder={"Access Token"}
-                                  className={`pr-12 `}
+                                  className={`pr-12 ${
+                                    isValidToken === false
+                                      ? "ring-offset-red-500 border-red-500"
+                                      : isValidToken === true
+                                      ? "ring-offset-green-500 border-green-500"
+                                      : ""
+                                  }`}
                                   disabled={isLoading}
                                 />
                                 <Box
@@ -375,6 +430,12 @@ const IntegrationForm = ({
                               </Box>
                             </FormControl>
                             <FormDescription>
+                              {isValidToken === false && (
+                                <p className="text-red-500">Invalid Token</p>
+                              )}
+                              {isValidToken === true && (
+                                <p className="text-green-500">Token Verified</p>
+                              )}
                               Paste the copied access token to allow insightflow
                               to connect with your new trello account.
                             </FormDescription>
