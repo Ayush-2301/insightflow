@@ -182,7 +182,7 @@ export const updateTrelloConfig = async ({
     }
     revalidateTag("trello");
     const res = await response.json();
-    console.log(res);
+
     return { message: "Success" };
   } catch (error) {
     console.log(error);
@@ -197,7 +197,6 @@ export const deleteTrelloConfig = async ({
   boardId: string;
 }) => {
   try {
-    console.log("called");
     const { access_token, user_id } = await getSession();
     if (!access_token) redirect("/auth");
     const response = await fetch(
@@ -216,13 +215,13 @@ export const deleteTrelloConfig = async ({
     );
     if (!response.ok) {
       const res = await response.json();
-      console.log(res);
+
       return { message: "error" };
     }
     revalidateTag("trello");
     revalidateTag("tasks");
     const res = await response.json();
-    console.log(res);
+
     return { message: "Success" };
   } catch (error) {}
 };

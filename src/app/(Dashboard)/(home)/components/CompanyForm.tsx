@@ -147,7 +147,6 @@ const CompanyForm = ({
 
   const error = form.formState.errors;
 
-  console.log(error);
   async function update({
     newCompany,
     id,

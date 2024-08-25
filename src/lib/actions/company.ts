@@ -12,7 +12,7 @@ export const getCompany = async () => {
   try {
     const { access_token, user_id } = await getSession();
     if (!access_token) redirect("/auth");
-    console.log(user_id);
+
     const response = await fetch(
       `${SERVER_URL}/company_info/?user_id=${user_id}`,
 
@@ -88,7 +88,6 @@ export const updateCompany = async ({
 
     if (!access_token) redirect("/auth");
     const formData = { id, ...newCompany };
-    console.log(formData);
 
     const response = await fetch(`${SERVER_URL}/company_info`, {
       method: "PUT",

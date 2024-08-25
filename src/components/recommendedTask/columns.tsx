@@ -125,7 +125,6 @@ export const columns = (): ColumnDef<StaticTasks>[] => [
     },
     id: "actions",
     cell: ({ row }) => {
-      console.log(row);
       return (
         <div className="flex justify-center">
           <CellAction task={row.original} />
