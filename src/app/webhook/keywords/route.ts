@@ -11,19 +11,15 @@ export async function POST(request: Request) {
     console.log(data.user_id);
 
     const channel = supabase.channel(`keywords-${data.user_id}`);
+    console.log(channel);
 
-    channel.subscribe((status) => {
-      console.log(`Channel status: ${status}`);
-      if (status !== "SUBSCRIBED") {
-        return null;
-      }
-      channel.send({
-        type: "broadcast",
-        event: "keywords.generated",
-        payload: { user_id: data.user_id },
-      });
-      revalidateTag("masterkeywords");
+    channel.send({
+      type: "broadcast",
+      event: "keywords.generated",
+      payload: { user_id: data.user_id },
     });
+    revalidateTag("masterkeywords");
+    supabase.removeChannel(channel);
   } catch (error) {
     return new Response(`Webhook error`, {
       status: 400,

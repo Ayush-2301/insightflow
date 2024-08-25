@@ -110,40 +110,6 @@ const WatchlistForm = ({
     }
   }
 
-  const registerBroadcastEvent = async ({ userID }: { userID: string }) => {
-    const supabase = createSupabaseBrowserClient();
-    const channel = supabase.channel(`keywords-${userID}`);
-    channel.on(
-      "broadcast",
-      {
-        event: "keywords.generated",
-      },
-      (payload) => {
-        console.log(payload);
-        if (payload.payload.user_id === userID) {
-          getKeywords();
-        }
-      }
-    );
-    channel.subscribe((e) => console.log("Subscribe to Channel", e));
-  };
-
-  async function getKeywords() {
-    console.log("called");
-    const keywordResponse = await getMasterKeywords();
-
-    const suggestedKeywords: Keyword[] | undefined = keywordResponse?.map(
-      (item) => ({
-        id: item.id,
-        keyword: item.keyword,
-        volume: "0",
-        approve: item.approve,
-      })
-    );
-    setLoadingSuggestions(suggestedKeywords?.length === 0);
-    setSuggestedKeywords(suggestedKeywords);
-  }
-
   const handleSaveAction = () => {
     const newWatchList: WatchlistForm = {
       user_id: userID,
@@ -204,6 +170,41 @@ const WatchlistForm = ({
     );
   };
 
+  const registerBroadcastEvent = async ({ userID }: { userID: string }) => {
+    const supabase = createSupabaseBrowserClient();
+    const channel = supabase.channel(`keywords-${userID}`);
+    console.log("Channel", channel);
+    channel.on(
+      "broadcast",
+      {
+        event: "keywords.generated",
+      },
+      (payload) => {
+        console.log(payload);
+        if (payload.payload.user_id === userID) {
+          getKeywords();
+        }
+      }
+    );
+    channel.subscribe((e) => console.log("Subscribe to Channel", e));
+  };
+
+  async function getKeywords() {
+    console.log("called");
+    const keywordResponse = await getMasterKeywords();
+
+    const suggestedKeywords: Keyword[] | undefined = keywordResponse?.map(
+      (item) => ({
+        id: item.id,
+        keyword: item.keyword,
+        volume: "0",
+        approve: item.approve,
+      })
+    );
+    setLoadingSuggestions(suggestedKeywords?.length === 0);
+    setSuggestedKeywords(suggestedKeywords);
+  }
+
   useEffect(() => {
     getKeywords();
     if (titleInputRef.current) {
@@ -212,7 +213,7 @@ const WatchlistForm = ({
   }, []);
 
   useEffect(() => {
-    registerBroadcastEvent({ userID });
+    if (userID) registerBroadcastEvent({ userID });
   }, [userID]);
 
   return (
