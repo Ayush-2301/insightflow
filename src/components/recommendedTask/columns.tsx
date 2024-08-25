@@ -1,22 +1,15 @@
 "use client";
-import { RecommendedTask, StaticTasks } from "@/lib/types";
+import { StaticTasks } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   ArrowDownWideNarrow,
   ArrowUpDown,
   ArrowUpNarrowWide,
-  ChevronRightIcon,
-  Square,
-  Triangle,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import CellAction from "./cell-action";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "../ui/hover-card";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,15 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-export const columns = ({
-  approveTask,
-  rejectTask,
-  approveTaskLoading,
-}: {
-  approveTask: (id: string) => void;
-  rejectTask: (id: string) => void;
-  approveTaskLoading: boolean;
-}): ColumnDef<StaticTasks>[] => [
+export const columns = (): ColumnDef<StaticTasks>[] => [
   {
     accessorKey: "task",
     header: "Task",
@@ -104,25 +89,6 @@ export const columns = ({
       return <>{date}</>;
     },
   },
-  // {
-  //   accessorKey: "weightage",
-  //   header: ({ column }) => {
-  //     return (
-  //       <Button
-  //         variant="ghost"
-  //         className="flex items-center self-end gap-1"
-  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-  //       >
-  //         {column.getIsSorted() === "asc" ? (
-  //           <ArrowUpNarrowWide className="w-4 h-4" />
-  //         ) : (
-  //           <ArrowDownWideNarrow className="w-4 h-4" />
-  //         )}
-  //       </Button>
-  //     );
-  //   },
-  //   cell: ({ row }) => <>{row.getValue("weightage")}</>,
-  // },
 
   {
     accessorKey: "weightage",
@@ -162,12 +128,7 @@ export const columns = ({
       console.log(row);
       return (
         <div className="flex justify-center">
-          <CellAction
-            task={row.original}
-            approveTaskLoading={approveTaskLoading}
-            approveTask={approveTask}
-            rejectTask={rejectTask}
-          />
+          <CellAction task={row.original} />
         </div>
       );
     },

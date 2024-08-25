@@ -11,24 +11,58 @@ import {
 import { Check, MoreHorizontal, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { Spinner } from "../Spinner";
-import { RecommendedTask, StaticTasks } from "@/lib/types";
-import { useContext } from "react";
-import RecommendationTaskTable from "@/app/(Dashboard)/watchlist/components/RecommendationTaskTable";
-import { RecommendedTaskContext } from "../provider/RecommendedTaskProvider";
+import { StaticTasks } from "@/lib/types";
+import { useContext, useState } from "react";
 
-const CellAction = ({
-  task,
-  approveTask,
-  rejectTask,
-  approveTaskLoading,
-}: {
-  task: StaticTasks;
-  approveTask: (id: string) => void;
-  rejectTask: (id: string) => void;
-  approveTaskLoading: boolean;
-}) => {
-  const { staticTasks } = useContext(RecommendedTaskContext);
-  console.log(staticTasks);
+import { RecommendedTaskContext } from "../provider/RecommendedTaskProvider";
+import { updateRecommendedTask } from "@/lib/actions/recommended";
+import { useToast } from "../ui/use-toast";
+
+const CellAction = ({ task }: { task: StaticTasks }) => {
+  const [approveTaskLoading, setApproveTaskLoading] = useState(false);
+  const { toast } = useToast();
+  const { setStaticTasks } = useContext(RecommendedTaskContext);
+
+  const approveTask = async (id: string) => {
+    setApproveTaskLoading(true);
+    const status = true;
+    const res = await updateRecommendedTask({ id, status });
+    if ("error" in res) {
+      toast({
+        title: "Error approving task",
+        description: res.error,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Task approved successfully",
+      });
+      updateTasksAfterAction(id);
+    }
+    setApproveTaskLoading(false);
+  };
+
+  const rejectTask = async (id: string) => {
+    setApproveTaskLoading(true);
+    const status = false;
+    const res = await updateRecommendedTask({ id, status });
+    if ("error" in res) {
+      toast({
+        title: "Error rejecting task",
+        description: res.error,
+        variant: "destructive",
+      });
+    } else {
+      toast({ title: "Task rejected successfully" });
+      updateTasksAfterAction(id);
+    }
+    setApproveTaskLoading(false);
+  };
+
+  const updateTasksAfterAction = (id: string) => {
+    setStaticTasks((prev) => prev.filter((task) => task.id !== id));
+  };
+
   if (approveTaskLoading) return <Spinner size={"default"} />;
   return (
     <DropdownMenu>

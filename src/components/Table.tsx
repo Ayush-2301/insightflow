@@ -1,13 +1,11 @@
 "use client";
-import { RecommendedTask, StaticTasks } from "@/lib/types";
+import { StaticTasks } from "@/lib/types";
 import { columns } from "@/components/recommendedTask/columns";
 import { DataTable } from "./recommendedTask/data-table";
 import React, { useContext, useState } from "react";
 import { GroupProp } from "@/app/(Dashboard)/watchlist/components/RecommendationTaskTable";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { updateRecommendedTask } from "@/lib/actions/recommended";
-import { useRouter } from "next/navigation";
 import { useToast } from "./ui/use-toast";
 import {
   Collapsible,
@@ -22,17 +20,11 @@ const GroupedTask = ({
   groupInfo,
   group,
   tasks,
-  approveTask,
-  rejectTask,
-  approveTaskLoading,
   open,
 }: {
   groupInfo: GroupProp;
   group: string;
   tasks: StaticTasks[];
-  approveTask: (id: string) => void;
-  rejectTask: (id: string) => void;
-  approveTaskLoading: boolean;
   open: boolean;
 }) => {
   const [isOpen, setIsOpen] = useState(open);
@@ -64,22 +56,16 @@ const GroupedTask = ({
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent className="space-y-2 mt-4">
-        <DataTable
-          data={tasks}
-          columns={columns({ approveTask, rejectTask, approveTaskLoading })}
-        />
+        <DataTable data={tasks} columns={columns()} />
       </CollapsibleContent>
     </Collapsible>
   );
 };
 
 const Table = ({ group }: { group: GroupProp }) => {
-  const { setStaticTasks, staticTasks } = useContext(RecommendedTaskContext);
-  const router = useRouter();
-  const { toast } = useToast();
+  const { staticTasks } = useContext(RecommendedTaskContext);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [approveTaskLoading, setApproveTaskLoading] = useState(false);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -99,46 +85,6 @@ const Table = ({ group }: { group: GroupProp }) => {
         }, {} as { [key: string]: StaticTasks[] })
       : {};
 
-  const updateTasksAfterAction = (id: string) => {
-    setStaticTasks((prev) => prev.filter((task) => task.id !== id));
-  };
-
-  const approveTask = async (id: string) => {
-    setApproveTaskLoading(true);
-    const status = true;
-    const res = await updateRecommendedTask({ id, status });
-    if ("error" in res) {
-      toast({
-        title: "Error approving task",
-        description: res.error,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Task approved successfully",
-      });
-      updateTasksAfterAction(id);
-    }
-    setApproveTaskLoading(false);
-  };
-
-  const rejectTask = async (id: string) => {
-    setApproveTaskLoading(true);
-    const status = false;
-    const res = await updateRecommendedTask({ id, status });
-    if ("error" in res) {
-      toast({
-        title: "Error rejecting task",
-        description: res.error,
-        variant: "destructive",
-      });
-    } else {
-      toast({ title: "Task rejected successfully" });
-      updateTasksAfterAction(id);
-    }
-    setApproveTaskLoading(false);
-  };
-
   return (
     <div>
       <div className="flex gap-2 items-center mb-4">
@@ -150,14 +96,7 @@ const Table = ({ group }: { group: GroupProp }) => {
         <Button>Search</Button>
       </div>
       {group.value === "all" ? (
-        <DataTable
-          columns={columns({
-            approveTask,
-            rejectTask,
-            approveTaskLoading,
-          })}
-          data={filteredTasks}
-        />
+        <DataTable columns={columns()} data={filteredTasks} />
       ) : (
         Object.entries(groupedTasks).map(([key, tasks], index) => (
           <div key={key} className="my-6 p-3 border rounded-md bg-slate-100">
@@ -165,9 +104,6 @@ const Table = ({ group }: { group: GroupProp }) => {
               groupInfo={group}
               group={key}
               tasks={tasks}
-              approveTask={approveTask}
-              rejectTask={rejectTask}
-              approveTaskLoading={approveTaskLoading}
               open={index === 0}
             />
           </div>
