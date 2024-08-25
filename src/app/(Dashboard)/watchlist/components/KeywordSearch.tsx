@@ -7,6 +7,7 @@ import { debounce } from "@/lib/utils";
 import { searchKeyword } from "@/lib/actions";
 import { Spinner } from "@/components/Spinner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Sparkles } from "lucide-react";
 
 interface KeywordSearchProps {
   loadingSuggestions: boolean;
@@ -224,13 +225,24 @@ const getRandomWidth = () => {
 };
 
 const SuggestedKeywordsSkeleton = () => {
+  const numberOfItems = 10;
+  const baseDelay = 0.5;
+  const overlap = 0.2;
+
   return (
     <div className="mt-8 flex flex-wrap gap-3 w-full">
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((_, index) => (
-        <Skeleton
+      <p className="self-center flex items-center gap-2">
+        Generating Keywords{" "}
+        <Sparkles className="w-4 h-4 fill-purple-500 stroke-purple-500" />
+      </p>
+      {[...Array(numberOfItems)].map((_, index) => (
+        <div
           key={index}
-          className="h-[35px] rounded-full"
-          style={{ width: getRandomWidth() }}
+          style={{
+            width: getRandomWidth(),
+            animationDelay: `${index * (baseDelay - overlap)}s`,
+          }}
+          className="h-[35px] origin-left animate-loading rounded-full bg-gradient-to-r from-purple-50 from-40% via-purple-500/60 to-purple-50 to-70% bg-[length:200%] opacity-0 "
         />
       ))}
     </div>
