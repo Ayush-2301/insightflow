@@ -13,7 +13,7 @@ const WatchListPage = () => {
         <Suspense fallback={<HeadingSkeleton />}>
           <Heading heading="Watchlist" description="Manage your watchlists" />
         </Suspense>
-        <Link href={"/watchlist/new"} prefetch={false}>
+        <Link href={"/watchlist/new"}>
           <Button type="submit">+ Add New</Button>
         </Link>
       </div>

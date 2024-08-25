@@ -8,10 +8,8 @@ export async function POST(request: Request) {
     const data: {
       user_id: string;
     } = JSON.parse(response);
-    console.log(data.user_id);
 
     const channel = supabase.channel(`keywords-${data.user_id}`);
-    console.log(channel);
 
     channel.send({
       type: "broadcast",

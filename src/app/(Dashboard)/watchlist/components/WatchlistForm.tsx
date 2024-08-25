@@ -64,8 +64,6 @@ const WatchlistForm = ({
     defaultValues,
   });
 
-  console.log("before suggested keywords", suggestedKeywords);
-  console.log("before suggested keywords loading", loadingSuggestions);
   const error = form.formState.errors;
 
   async function update({
@@ -173,14 +171,12 @@ const WatchlistForm = ({
   const registerBroadcastEvent = async ({ userID }: { userID: string }) => {
     const supabase = createSupabaseBrowserClient();
     const channel = supabase.channel(`keywords-${userID}`);
-    console.log("Channel", channel);
     channel.on(
       "broadcast",
       {
         event: "keywords.generated",
       },
       (payload) => {
-        console.log(payload);
         if (payload.payload.user_id === userID) {
           getKeywords();
         }
@@ -190,7 +186,6 @@ const WatchlistForm = ({
   };
 
   async function getKeywords() {
-    console.log("called");
     const keywordResponse = await getMasterKeywords();
 
     const suggestedKeywords: Keyword[] | undefined = keywordResponse?.map(
